@@ -22,7 +22,7 @@ export default function LandingPage() {
 
     const timer = window.setTimeout(() => {
       setHeadingStage("invest");
-    }, 3600);
+    }, 5000);
 
     return () => window.clearTimeout(timer);
   }, []);
@@ -69,15 +69,10 @@ export default function LandingPage() {
             </h1>
           </div>
 
-          <p className="investment-description">
-            Explore markets around the world and choose the region you would
-            like to discover.
-          </p>
-        </div>
-
-        <div className="globe-section">
-          <InvestmentGlobe onSelectRegion={handleRegionSelect} />
-        </div>
+        <p className="investment-description">
+          Explore markets around the world and choose the region you would
+          like to discover.
+        </p>
 
         <div className="region-legend" aria-label="Available regions">
           {[
@@ -101,6 +96,11 @@ export default function LandingPage() {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="globe-section">
+        <InvestmentGlobe onSelectRegion={handleRegionSelect} />
+      </div>
       </section>
 
       <section

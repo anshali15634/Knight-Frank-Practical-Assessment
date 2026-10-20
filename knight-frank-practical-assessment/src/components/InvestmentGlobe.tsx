@@ -136,9 +136,12 @@ export default function InvestmentGlobe({ onSelectRegion }: Props) {
     const observer = new ResizeObserver(([entry]) => {
       if (!entry) return;
       const w = Math.floor(entry.contentRect.width);
+      const height = window.matchMedia("(min-width: 701px)").matches
+        ? w
+        : Math.max(340, Math.min(560, Math.floor(w * 0.78)));
       setDimensions({
         width: Math.max(280, w),
-        height: Math.max(340, Math.min(560, Math.floor(w * 0.78))),
+        height,
       });
     });
     observer.observe(container);

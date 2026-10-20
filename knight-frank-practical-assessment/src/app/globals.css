@@ -889,6 +889,7 @@ button:disabled {
 /* Main hero */
 
 .investment-hero {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   grid-template-rows: auto auto;
@@ -945,11 +946,12 @@ button:disabled {
 .investment-heading.is-visible {
   opacity: 1;
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .investment-heading span {
   color: var(--kf-accent);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .investment-description {
@@ -1038,15 +1040,13 @@ button:disabled {
 /* Region selector chips */
 
 .region-legend {
-  grid-column: 1;
-  grid-row: 2;
   display: flex;
-  justify-content: flex-start;
   flex-wrap: wrap;
+  justify-content: flex-start;
   gap: 10px;
   width: 100%;
   max-width: 620px;
-  margin: 18px 0 0;
+  margin: 26px 0 0;
 }
 
 .region-chip {
@@ -1163,6 +1163,33 @@ button:disabled {
   letter-spacing: 1.5px;
 }
 
+@media (min-width: 701px) {
+  .investment-intro {
+    position: relative;
+    z-index: 1;
+  }
+
+  .globe-section {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 0;
+    grid-column: auto;
+    grid-row: auto;
+    justify-self: initial;
+    width: 100vw;
+    height: 100vw;
+    max-width: none;
+    transform: translateY(-50%);
+  }
+
+  .investment-globe {
+    height: 100%;
+    max-width: none;
+    min-height: 0;
+  }
+}
+
 /* Mobile and tablet */
 
 @media (max-width: 700px) {
@@ -1185,15 +1212,32 @@ button:disabled {
     grid-row: 1;
   }
 
-  .investment-heading {
-    font-size: clamp(28px, 7vw, 37px);
-    letter-spacing: -0.8px;
-  }
+.investment-heading {
+  grid-area: 1 / 1;
+  width: 100%;
+  margin: 0;
+  color: #252525;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition:
+    opacity 1500ms ease-in-out,
+    transform 1500ms ease-in-out;
+}
 
-  .heading-transition {
-    min-height: 2.5em;
-    font-size: clamp(28px, 7vw, 37px);
-  }
+.heading-transition {
+  position: relative;
+  display: grid;
+  align-items: start;
+  width: 100%;
+  min-height: 2.5em;
+  font-size: clamp(34px, 4vw, 54px);
+}
 
   .investment-description {
     max-width: 400px;
