@@ -27,7 +27,6 @@ export default function LandingPage() {
     "welcome"
   );
   const [selectedRegion, setSelectedRegion] = useState("");
-  const [isPortalLocked, setIsPortalLocked] = useState(false);
   const portalRef = useRef<HTMLElement>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -45,21 +44,6 @@ export default function LandingPage() {
     return () => window.clearTimeout(timer);
   }, []);
 
-  // Lock page scrolling once the user has arrived at the portal
-  useEffect(() => {
-    if (!isPortalLocked) return;
-
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousBodyOverflow = document.body.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.body.style.overflow = previousBodyOverflow;
-    };
-  }, [isPortalLocked]);
-
   // Cancel any running scroll animation on unmount
   useEffect(
     () => () => {
@@ -71,8 +55,6 @@ export default function LandingPage() {
   );
 
   function handleRegionSelect(region: string) {
-    if (isPortalLocked) return;
-
     setSelectedRegion(region);
 
     const portal = portalRef.current;
@@ -99,7 +81,6 @@ export default function LandingPage() {
         rafRef.current = window.requestAnimationFrame(step);
       } else {
         rafRef.current = null;
-        setIsPortalLocked(true);
       }
     };
 

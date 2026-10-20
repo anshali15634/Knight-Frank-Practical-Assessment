@@ -40,16 +40,21 @@ export default function Home() {
       {/* Main content */}
       <section className="hero">
         <div className="hero-content">
+          
+          
           <div className="intro">
-            <p className="eyebrow">WELCOME TO</p>
-            <h1>KNIGHT FRANK</h1>
-            <p className="tagline">Your partners in property</p>
+            <p className="eyebrow">WELCOME TO KNIGHT FRANK</p>
+
+            <h1 className="tagline">Your partners in property.</h1>
 
             <div className="accent-line" />
 
-            <h2>Global Investment Portal</h2>
+            <h2 className="portal-title">
+              Global Investment Portal
+            </h2>
+
             <p className="hero-description">
-              Your next step starts here.
+              Discover opportunities across global property markets.
             </p>
           </div>
 
