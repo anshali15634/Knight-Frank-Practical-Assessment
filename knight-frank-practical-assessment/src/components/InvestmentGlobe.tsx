@@ -44,8 +44,8 @@ const COUNTRIES_URL = "/data/countries.geojson";
 
 const COLORS = {
   sphere: "#EEF2F7",
-  dots: "#00264D",
-  atmosphere: "#00264D",
+  dots: "#f36382",
+  atmosphere: "#f36382",
   pin: "#D0103A",
 };
 
@@ -225,7 +225,7 @@ export default function InvestmentGlobe({ onSelectRegion }: Props) {
       label.textContent = region.name;
       Object.assign(label.style, {
         background: "#fff",
-        color: "#00264D",
+        color: "#f36382",
         fontSize: "13px",
         fontWeight: "600",
         fontFamily: "inherit",

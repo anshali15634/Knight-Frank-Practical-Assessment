@@ -22,7 +22,7 @@ export default function LandingPage() {
 
     const timer = window.setTimeout(() => {
       setHeadingStage("invest");
-    }, 2600);
+    }, 3600);
 
     return () => window.clearTimeout(timer);
   }, []);
@@ -47,15 +47,26 @@ export default function LandingPage() {
           <p className="investment-eyebrow">KNIGHT FRANK · GLOBAL INVESTMENT</p>
 
           <div className="heading-transition" aria-live="polite">
-            {headingStage === "welcome" ? (
-              <h1 key="welcome" className="investment-heading">
-                Welcome, <span>{userName}</span>
-              </h1>
-            ) : (
-              <h1 key="invest" className="investment-heading">
-                Where would you like to invest?
-              </h1>
-            )}
+            <h1
+              className={
+                headingStage === "welcome"
+                  ? "investment-heading is-visible"
+                  : "investment-heading"
+              }
+              aria-hidden={headingStage !== "welcome"}
+            >
+              Welcome, <span>{userName}</span>
+            </h1>
+            <h1
+              className={
+                headingStage === "invest"
+                  ? "investment-heading is-visible"
+                  : "investment-heading"
+              }
+              aria-hidden={headingStage !== "invest"}
+            >
+              Where would you like to invest?
+            </h1>
           </div>
 
           <p className="investment-description">
