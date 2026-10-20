@@ -1,9 +1,25 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import LandingNavbar from "@/components/LandingNavBar";
 import InvestmentGlobe from "@/components/InvestmentGlobe";
+import AssetsPropertiesSearchMain from "@/components/portal/assets_properties_search_main";
+
+const REGIONS = [
+  "Asia",
+  "Australia",
+  "Europe",
+  "UK",
+  "USA",
+  "Africa",
+  "Middle East",
+  "Rest of the World",
+];
+
+const SCROLL_DURATION_MS = 1100;
+
+const easeInOutCubic = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
 export default function LandingPage() {
   const [userName, setUserName] = useState("User");
@@ -11,7 +27,9 @@ export default function LandingPage() {
     "welcome"
   );
   const [selectedRegion, setSelectedRegion] = useState("");
-  const nextStepRef = useRef<HTMLElement>(null);
+  const [isPortalLocked, setIsPortalLocked] = useState(false);
+  const portalRef = useRef<HTMLElement>(null);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     const savedName = sessionStorage.getItem("kf_user_name");
@@ -27,15 +45,66 @@ export default function LandingPage() {
     return () => window.clearTimeout(timer);
   }, []);
 
+  // Lock page scrolling once the user has arrived at the portal
+  useEffect(() => {
+    if (!isPortalLocked) return;
+
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+    };
+  }, [isPortalLocked]);
+
+  // Cancel any running scroll animation on unmount
+  useEffect(
+    () => () => {
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    },
+    []
+  );
+
   function handleRegionSelect(region: string) {
+    if (isPortalLocked) return;
+
     setSelectedRegion(region);
 
-    window.setTimeout(() => {
-      nextStepRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 100);
+    const portal = portalRef.current;
+    if (!portal) return;
+
+    // To always animate while developing, change to: const duration = SCROLL_DURATION_MS;
+    const duration = SCROLL_DURATION_MS;
+    const startY = window.scrollY;
+    const startTime = performance.now();
+
+    // Respect the sticky navbar offset defined by scroll-margin-top in the CSS
+    const offset = parseFloat(getComputedStyle(portal).scrollMarginTop) || 0;
+    const getTargetY = () =>
+      portal.getBoundingClientRect().top + window.scrollY - offset;
+
+    const step = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      // Target is re-measured every frame so layout shifts don't break the scroll
+      const y = startY + (getTargetY() - startY) * easeInOutCubic(t);
+
+      window.scrollTo({ top: y, behavior: "instant" as ScrollBehavior });
+
+      if (t < 1) {
+        rafRef.current = window.requestAnimationFrame(step);
+      } else {
+        rafRef.current = null;
+        setIsPortalLocked(true);
+      }
+    };
+
+    if (rafRef.current !== null) window.cancelAnimationFrame(rafRef.current);
+    rafRef.current = window.requestAnimationFrame(step);
   }
 
   return (
@@ -69,66 +138,42 @@ export default function LandingPage() {
             </h1>
           </div>
 
-        <p className="investment-description">
-          Explore markets around the world and choose the region you would
-          like to discover.
-        </p>
+          <p className="investment-description">
+            Explore markets around the world and choose the region you would
+            like to discover.
+          </p>
 
-        <div className="region-legend" aria-label="Available regions">
-          {[
-            "Asia",
-            "Australia",
-            "Europe",
-            "UK",
-            "USA",
-            "Africa",
-            "Middle East",
-            "Rest of the World",
-          ].map((region) => (
-            <button
-              key={region}
-              type="button"
-              className="region-chip"
-              onClick={() => handleRegionSelect(region)}
-            >
-              <span className="region-chip-dot" />
-              {region}
-            </button>
-          ))}
+          <div className="region-legend" aria-label="Available regions">
+            {REGIONS.map((region) => (
+              <button
+                key={region}
+                type="button"
+                className="region-chip"
+                onClick={() => handleRegionSelect(region)}
+              >
+                <span className="region-chip-dot" />
+                {region}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="globe-section">
-        <InvestmentGlobe onSelectRegion={handleRegionSelect} />
-      </div>
+        <div className="globe-section">
+          <InvestmentGlobe onSelectRegion={handleRegionSelect} />
+        </div>
       </section>
 
       <section
-        className="next-step-section"
-        ref={nextStepRef}
-        aria-labelledby="next-step-heading"
+        className="portal-section"
+        ref={portalRef}
+        aria-label="Property search portal"
       >
-        <div className="next-step-inner">
-          <p className="investment-eyebrow">YOUR INVESTMENT JOURNEY</p>
-          <h2 id="next-step-heading">Next step here</h2>
-          <p className="next-step-description">
-            {selectedRegion
-              ? `You selected ${selectedRegion}. The next stage of your investment journey will appear here.`
-              : "Your next stage will appear here after you choose a region."}
-          </p>
-
-          {selectedRegion && (
-            <div className="selected-region">
-              <span className="selected-region-label">SELECTED REGION</span>
-              <span className="selected-region-value">{selectedRegion}</span>
-            </div>
-          )}
-        </div>
+        <AssetsPropertiesSearchMain region={selectedRegion} />
       </section>
 
       <footer className="investment-footer">
         <span>KNIGHT FRANK</span>
-        <span>Global Investment · Assessment Platform</span>
+        <span>Global Investment Portal</span>
       </footer>
     </main>
   );

@@ -49,12 +49,6 @@ const COLORS = {
   pin: "#D0103A",
 };
 
-// Transition timings (ms) - tweak these to taste
-const ZOOM_MS = 1400;
-const FADE_MS = 700;
-const FADE_START = 900; // when the white fade begins
-const NAVIGATE_AT = 1700; // when onSelectRegion fires
-
 type Props = { onSelectRegion: (region: string) => void };
 
 type CountryFeatureCollection = {
@@ -79,12 +73,10 @@ export default function InvestmentGlobe({ onSelectRegion }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const globeRef = useRef<any>(undefined);
   const selectingRef = useRef(false);
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const [countries, setCountries] = useState<object[]>([]);
   const [countryLoadError, setCountryLoadError] = useState(false);
   const [globeMaterial, setGlobeMaterial] = useState<MeshBasicMaterial | null>(null);
-  const [leaving, setLeaving] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 600, height: 480 });
 
   // Create the material on the client only (avoids the Math.random prerender error)
@@ -148,11 +140,6 @@ export default function InvestmentGlobe({ onSelectRegion }: Props) {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const t = timers.current;
-    return () => t.forEach(clearTimeout);
-  }, []);
-
   const handleReady = useCallback(() => {
     const controls = globeRef.current?.controls();
     if (!controls) return;
@@ -176,17 +163,7 @@ export default function InvestmentGlobe({ onSelectRegion }: Props) {
       const controls = globeRef.current?.controls();
       if (controls) controls.autoRotate = false;
 
-      // 1. Glide the camera to the region
-      globeRef.current?.pointOfView(
-        { lat: region.lat, lng: region.lng, altitude: 1.2 },
-        ZOOM_MS
-      );
-      // 2. Fade the page to white
-      timers.current.push(setTimeout(() => setLeaving(true), FADE_START));
-      // 3. Navigate
-      timers.current.push(
-        setTimeout(() => onSelectRegion(region.name), NAVIGATE_AT)
-      );
+      onSelectRegion(region.name);
     },
     [onSelectRegion]
   );
@@ -293,19 +270,6 @@ export default function InvestmentGlobe({ onSelectRegion }: Props) {
         </p>
       )}
 
-      {/* White fade-out overlay used during the transition */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "#fff",
-          opacity: leaving ? 1 : 0,
-          pointerEvents: leaving ? "auto" : "none",
-          transition: `opacity ${FADE_MS}ms ease`,
-          zIndex: 50,
-        }}
-      />
     </div>
   );
 }

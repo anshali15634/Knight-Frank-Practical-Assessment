@@ -1,4 +1,3 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
 /* ========================================
@@ -23,6 +22,8 @@
 
 html {
   min-height: 100%;
+  /* Reserve scrollbar space so locking overflow doesn't shift the layout */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -123,7 +124,12 @@ button:disabled {
   }
 }
 
-/* Respect users who prefer reduced motion. */
+/*
+  Reduced motion: only the auto-playing background carousel is stopped.
+  The old global `* { transition-duration: 0.01ms !important }` rule was
+  removed because it disabled every transition on the site (heading fade,
+  hover states, etc.).
+*/
 
 @media (prefers-reduced-motion: reduce) {
   .carousel-image {
@@ -133,13 +139,6 @@ button:disabled {
 
   .carousel-image:first-child {
     opacity: 1;
-  }
-
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
   }
 }
 
@@ -928,6 +927,13 @@ button:disabled {
   font-size: clamp(30px, 4vw, 46px);
 }
 
+/*
+  Heading crossfade (staggered).
+  The outgoing heading fades out first (no delay); the incoming one
+  waits 350ms before fading in, so you never see two half-transparent
+  headings stacked on top of each other.
+*/
+
 .investment-heading {
   position: absolute;
   inset: 0 auto auto 0;
@@ -940,13 +946,17 @@ button:disabled {
   line-height: 1.25;
   opacity: 0;
   transform: translateY(12px);
-  transition: opacity 1800ms ease, transform 1800ms ease;
+  pointer-events: none;
+  transition:
+    opacity 900ms ease,
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .investment-heading.is-visible {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  transition-delay: 350ms;
 }
 
 .investment-heading span {
@@ -1083,26 +1093,30 @@ button:disabled {
   background: var(--kf-accent);
 }
 
-/* Next-step placeholder */
-
-.next-step-section {
-  min-height: 430px;
+.portal-section {
+  min-height: calc(100vh - 82px);
+  min-height: calc(100svh - 82px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 90px 24px;
+  padding: 56px 6.5%;
   scroll-margin-top: 82px;
   border-top: 1px solid var(--kf-border);
-  background: #ffffff;
+  background: #f8f8f8;
 }
 
-.next-step-inner {
+.property-search-page {
   width: 100%;
-  max-width: 760px;
+  max-width: 1120px;
+}
+
+.property-search-heading {
+  max-width: 660px;
+  margin: 0 auto 36px;
   text-align: center;
 }
 
-.next-step-inner h2 {
+.property-search-heading h2 {
   margin: 0;
   color: #262626;
   font-size: clamp(28px, 4vw, 40px);
@@ -1110,36 +1124,67 @@ button:disabled {
   letter-spacing: -1px;
 }
 
-.next-step-description {
-  max-width: 500px;
-  margin: 17px auto 0;
+.property-search-heading > p:last-child {
+  margin: 15px 0 0;
   color: var(--kf-muted);
   font-size: 13px;
   line-height: 1.9;
 }
 
-.selected-region {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 7px;
-  margin-top: 28px;
-  padding: 17px 27px;
-  border: 1px solid #f0d4dc;
-  border-radius: 5px;
-  background: var(--kf-accent-light);
+.property-search-form {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
+  align-items: end;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--kf-border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 36px rgb(0 0 0 / 5%);
 }
 
-.selected-region-label {
-  color: var(--kf-accent);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-}
-
-.selected-region-value {
-  color: #303030;
-  font-size: 15px;
+.property-search-form label {
+  display: grid;
+  gap: 9px;
+  color: #454545;
+  font-size: 11px;
   font-weight: 600;
+}
+
+.property-search-form input,
+.property-search-form select {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid #dedede;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #333333;
+  font-size: 12px;
+}
+
+.property-search-form button {
+  min-height: 46px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--kf-accent);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 160ms ease;
+}
+
+.property-search-form button:hover {
+  background: #ad0d30;
+}
+
+.property-search-status {
+  min-height: 20px;
+  margin: 18px 0 0;
+  color: var(--kf-muted);
+  font-size: 12px;
+  text-align: center;
 }
 
 /* Footer */
@@ -1212,32 +1257,32 @@ button:disabled {
     grid-row: 1;
   }
 
-.investment-heading {
-  grid-area: 1 / 1;
-  width: 100%;
-  margin: 0;
-  color: #252525;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: inherit;
-  font-weight: 400;
-  letter-spacing: -0.5px;
-  line-height: 1.2;
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
-  transition:
-    opacity 1500ms ease-in-out,
-    transform 1500ms ease-in-out;
-}
+  .investment-heading {
+    grid-area: 1 / 1;
+    width: 100%;
+    margin: 0;
+    color: #252525;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: inherit;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition:
+      opacity 900ms ease,
+      transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
 
-.heading-transition {
-  position: relative;
-  display: grid;
-  align-items: start;
-  width: 100%;
-  min-height: 2.5em;
-  font-size: clamp(34px, 4vw, 54px);
-}
+  .heading-transition {
+    position: relative;
+    display: grid;
+    align-items: start;
+    width: 100%;
+    min-height: 2.5em;
+    font-size: clamp(34px, 4vw, 54px);
+  }
 
   .investment-description {
     max-width: 400px;
@@ -1277,10 +1322,15 @@ button:disabled {
     font-size: 10px;
   }
 
-  .next-step-section {
-    min-height: 360px;
-    padding: 70px 20px;
+  .portal-section {
+    min-height: calc(100svh - 70px);
+    padding: 44px 20px;
     scroll-margin-top: 70px;
+  }
+
+  .property-search-form {
+    grid-template-columns: 1fr;
+    padding: 18px;
   }
 
   .investment-footer {
@@ -1291,10 +1341,19 @@ button:disabled {
   }
 }
 
+/*
+  Reduced motion for the investment page: keep a gentle opacity
+  crossfade on the headings (no movement) instead of an instant swap.
+*/
+
 @media (prefers-reduced-motion: reduce) {
   .investment-heading {
-    transition: none;
     transform: none;
+    transition: opacity 600ms ease;
+  }
+
+  .investment-heading.is-visible {
+    transition-delay: 0ms;
   }
 
   .profile-chevron,
