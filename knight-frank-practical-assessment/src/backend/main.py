@@ -90,11 +90,10 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=1, max_length=128)
 
-
 class AuthResponse(BaseModel):
     message: str
     redirect_to: str | None = None
-
+    full_name: str | None = None
 
 class HealthResponse(BaseModel):
     status: str
@@ -251,7 +250,8 @@ def login(payload: LoginRequest):
 
         return AuthResponse(
             message=f"Login successful. Welcome, {user['full_name']}!",
-            redirect_to="/success",
+            redirect_to="/landing",
+            full_name=user["full_name"],
         )
 
     except HTTPException:

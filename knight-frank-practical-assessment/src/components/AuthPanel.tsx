@@ -7,6 +7,7 @@ type AuthMode = "login" | "signup";
 type AuthResponse = {
   message: string;
   redirect_to: string | null;
+  full_name?: string | null;
 };
 
 const API_BASE_URL = (
@@ -214,7 +215,7 @@ export default function AuthPanel() {
       return;
     }
 
-    if (payload.redirect_to !== "/success") {
+    if (payload.redirect_to !== "/landing") {
       setMessage(
         "You’re signed in, but we couldn’t open your portal. Please try again."
       );
@@ -223,7 +224,13 @@ export default function AuthPanel() {
       return;
     }
 
-    router.push("/success");
+    if (payload.full_name) {
+      sessionStorage.setItem("kf_user_name", payload.full_name);
+    }
+
+    sessionStorage.setItem("kf_user_email", email.trim());
+
+    router.push("/landing");
   }
 
   return (

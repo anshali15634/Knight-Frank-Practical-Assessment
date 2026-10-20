@@ -34,7 +34,7 @@ export default function Home() {
           />
         </Link>
 
-        <span className="navbar-label">ASSESSMENT PLATFORM</span>
+        <span className="navbar-label">Global Investment Portal</span>
       </header>
 
       {/* Main content */}
@@ -43,11 +43,11 @@ export default function Home() {
           <div className="intro">
             <p className="eyebrow">WELCOME TO</p>
             <h1>KNIGHT FRANK</h1>
-            <p className="tagline">Your partners in success</p>
+            <p className="tagline">Your partners in property</p>
 
             <div className="accent-line" />
 
-            <h2>Assessment Platform Name</h2>
+            <h2>Global Investment Portal</h2>
             <p className="hero-description">
               Your next step starts here.
             </p>
@@ -59,7 +59,7 @@ export default function Home() {
 
       <footer className="page-footer">
         <span>KNIGHT FRANK</span>
-        <span>Assessment Platform</span>
+        <span>Global Investment Portal</span>
       </footer>
     </main>
   );
