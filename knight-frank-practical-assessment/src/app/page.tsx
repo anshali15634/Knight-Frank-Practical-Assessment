@@ -8,16 +8,12 @@ export default function Home() {
     <main className="landing-page">
       {/* Fixed background carousel */}
       <div className="background-carousel" aria-hidden="true">
-        {[1, 2, 3, 4, 5].map((image, index) => (
           <div
-            key={image}
             className="carousel-image"
             style={{
-              backgroundImage: `url('/realestate${image}.jpeg')`,
-              animationDelay: `${index * 6}s`,
+              backgroundImage: `url('/realestate1.png')`,
             }}
           />
-        ))}
       </div>
 
       <div className="background-overlay" />

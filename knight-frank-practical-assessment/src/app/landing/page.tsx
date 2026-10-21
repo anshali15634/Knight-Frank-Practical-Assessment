@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import LandingNavbar from "@/components/LandingNavBar";
 import InvestmentGlobe from "@/components/InvestmentGlobe";
 import AssetsPropertiesSearchMain from "@/components/portal/assets_properties_search_main";
+import FrankAssistant from "@/components/assistant/Frankassistant";
 
 const REGIONS = [
   "Asia",
@@ -14,7 +15,22 @@ const REGIONS = [
   "Africa",
   "Middle East",
   "Rest of the World",
-];
+] as const;
+
+const DEFAULT_BACKGROUND = "/realestate1.png";
+
+const REGION_BACKGROUNDS: Record<(typeof REGIONS)[number], string> = {
+  Asia: "/asia.jpg",
+  Australia: "/australia.jpg",
+  Europe: "/europe.jpg",
+  UK: "/uk.jpg",
+  USA: "/usa.jpg",
+  Africa: "/africa.jpg",
+  "Middle East": DEFAULT_BACKGROUND,
+  "Rest of the World": "/restofworld.jpg",
+};
+
+const HERO_BACKGROUNDS = [...new Set(Object.values(REGION_BACKGROUNDS))];
 
 const SCROLL_DURATION_MS = 1100;
 
@@ -27,8 +43,13 @@ export default function LandingPage() {
     "welcome"
   );
   const [selectedRegion, setSelectedRegion] = useState("");
+  const [hoveredRegion, setHoveredRegion] =
+    useState<(typeof REGIONS)[number] | null>(null);
   const portalRef = useRef<HTMLElement>(null);
   const rafRef = useRef<number | null>(null);
+  const activeBackground = hoveredRegion
+    ? REGION_BACKGROUNDS[hoveredRegion]
+    : DEFAULT_BACKGROUND;
 
   useEffect(() => {
     const savedName = sessionStorage.getItem("kf_user_name");
@@ -93,6 +114,19 @@ export default function LandingPage() {
       <LandingNavbar />
 
       <section className="investment-hero">
+        <div className="investment-hero-background" aria-hidden="true">
+          {HERO_BACKGROUNDS.map((background) => (
+            <div
+              key={background}
+              className="investment-hero-background-image"
+              style={{
+                backgroundImage: `url("${background}")`,
+                opacity: activeBackground === background ? 1 : 0,
+              }}
+            />
+          ))}
+        </div>
+
         <div className="investment-intro">
           <p className="investment-eyebrow">KNIGHT FRANK · GLOBAL INVESTMENT</p>
 
@@ -130,6 +164,8 @@ export default function LandingPage() {
                 key={region}
                 type="button"
                 className="region-chip"
+                onMouseEnter={() => setHoveredRegion(region)}
+                onMouseLeave={() => setHoveredRegion(null)}
                 onClick={() => handleRegionSelect(region)}
               >
                 <span className="region-chip-dot" />
@@ -156,6 +192,7 @@ export default function LandingPage() {
         <span>KNIGHT FRANK</span>
         <span>Global Investment Portal</span>
       </footer>
+      <FrankAssistant/>
     </main>
   );
 }

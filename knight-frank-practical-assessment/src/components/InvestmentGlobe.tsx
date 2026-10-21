@@ -44,7 +44,7 @@ const COUNTRIES_URL = "/data/countries.geojson";
 
 const COLORS = {
   sphere: "#EEF2F7",
-  dots: "#f36382",
+  dots: "#ee345c",
   atmosphere: "#f36382",
   pin: "#D0103A",
 };
@@ -241,10 +241,10 @@ export default function InvestmentGlobe({ onSelectRegion }: Props) {
           globeMaterial={globeMaterial}
           showAtmosphere
           atmosphereColor={COLORS.atmosphere}
-          atmosphereAltitude={0.1}
+          atmosphereAltitude={0.2}
           hexPolygonsData={countries}
           hexPolygonResolution={3}
-          hexPolygonMargin={0.2}
+          hexPolygonMargin={0.1}
           hexPolygonUseDots
           hexPolygonColor={() => COLORS.dots}
           htmlElementsData={regions}
