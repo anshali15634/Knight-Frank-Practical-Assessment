@@ -6,8 +6,11 @@ import {
   useState,
   type ChangeEvent,
   type FormEvent,
+  type ReactNode,
 } from "react";
 import { Brain, Send, Settings, X, Zap } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import FrankBlob, { type Gaze } from "@/components/assistant/Frankblob";
 import "./frank-assistant.css";
 
@@ -46,6 +49,80 @@ function isSource(value: unknown): value is Source {
     value !== null &&
     "source" in value &&
     typeof value.source === "string"
+  );
+}
+
+function normalizedUrl(url: string) {
+  try {
+    return new URL(url, "https://www.knightfrank.ae").href;
+  } catch {
+    return url;
+  }
+}
+
+function uniqueSources(sources: Source[]) {
+  const seen = new Set<string>();
+  return sources.filter((source) => {
+    if (!source.url) return true;
+    const url = normalizedUrl(source.url);
+    if (seen.has(url)) return false;
+    seen.add(url);
+    return true;
+  });
+}
+
+function MessageBubble({
+  message,
+  avatar,
+}: {
+  message: Message;
+  avatar: ReactNode;
+}) {
+  const seenLinks = new Set<string>();
+
+  return (
+    <li className={`frank-msg frank-msg--${message.role} frank-msg--enter`}>
+      {message.role === "assistant" && avatar}
+      <div className="frank-msg__bubble">
+        {message.role === "assistant" ? (
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              a({ href, children }) {
+                if (!href) return <>{children}</>;
+                const normalized = normalizedUrl(href);
+                if (seenLinks.has(normalized)) return null;
+                seenLinks.add(normalized);
+                return (
+                  <a href={href} target="_blank" rel="noreferrer">
+                    {children}
+                  </a>
+                );
+              },
+            }}
+          >
+            {message.text}
+          </ReactMarkdown>
+        ) : (
+          <p>{message.text}</p>
+        )}
+        {message.sources && message.sources.length > 0 && (
+          <ul className="frank-sources" aria-label="Sources">
+            {message.sources.map((source, index) => (
+              <li key={source.url ?? `${source.source}-${index}`}>
+                {source.url ? (
+                  <a href={source.url} target="_blank" rel="noreferrer">
+                    {source.source}
+                  </a>
+                ) : (
+                  source.source
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </li>
   );
 }
 
@@ -283,7 +360,7 @@ export default function FrankAssistant() {
           }
           sessionId.current = data.session_id;
           const sources = Array.isArray(data.sources)
-            ? data.sources.filter(isSource)
+            ? uniqueSources(data.sources.filter(isSource))
             : [];
           addMessage("assistant", data.answer, sources);
           receivedAnswer = true;
@@ -365,30 +442,7 @@ export default function FrankAssistant() {
               </li>
             )}
             {messages.map((m) => (
-              <li
-                key={m.id}
-                className={`frank-msg frank-msg--${m.role} frank-msg--enter`}
-              >
-                {m.role === "assistant" && avatar}
-                <div className="frank-msg__bubble">
-                  <p>{m.text}</p>
-                  {m.sources && m.sources.length > 0 && (
-                    <ul className="frank-sources" aria-label="Sources">
-                      {m.sources.map((source, index) => (
-                        <li key={`${source.source}-${index}`}>
-                          {source.url ? (
-                            <a href={source.url} target="_blank" rel="noreferrer">
-                              {source.source}
-                            </a>
-                          ) : (
-                            source.source
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </li>
+              <MessageBubble key={m.id} message={m} avatar={avatar} />
             ))}
             {loading && (
               <li className="frank-msg frank-msg--assistant frank-msg--enter">

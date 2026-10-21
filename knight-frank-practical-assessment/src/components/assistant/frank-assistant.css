@@ -288,6 +288,35 @@
   margin: 0;
 }
 
+.frank-msg--assistant .frank-msg__bubble p + p {
+  margin-top: 0.65em;
+}
+
+.frank-msg--assistant .frank-msg__bubble ul,
+.frank-msg--assistant .frank-msg__bubble ol {
+  margin: 0.5em 0;
+  padding-left: 1.4em;
+}
+
+.frank-msg--assistant .frank-msg__bubble li + li {
+  margin-top: 0.25em;
+}
+
+.frank-msg--assistant .frank-msg__bubble a {
+  color: #b10d32;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+}
+
+.frank-msg--assistant .frank-msg__bubble code {
+  overflow-wrap: anywhere;
+}
+
+.frank-msg--assistant .frank-msg__bubble pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 .frank-sources {
   margin: 8px 0 0;
   padding-left: 18px;
