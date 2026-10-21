@@ -11,6 +11,8 @@ npm run dev
 
 The login and signup forms call the FastAPI service at `http://localhost:8000` by default. Set `NEXT_PUBLIC_API_URL` in `.env.local` if the API is hosted at a different URL.
 
+Frank sends chat messages to the FastAPI `/chat/stream` endpoint. The endpoint streams agent progress updates (intent classification, report/news retrieval, and response generation) before returning Frank's answer and sources. The chat reuses the returned session ID to preserve conversation context.
+
 ### Backend
 
 Install and run the API from its directory:

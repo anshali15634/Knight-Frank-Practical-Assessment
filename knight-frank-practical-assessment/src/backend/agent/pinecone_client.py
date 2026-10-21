@@ -7,6 +7,17 @@ from pinecone import Pinecone
 from agent.models import Source
 from config import settings
 
+REPORT_SOURCES = {
+    settings.residential_index_name: (
+        "Dubai Residential Market Review Q1 2026",
+        "https://www.knightfrank.ae/research/reports/dubai-residential-market-review-2365",
+    ),
+    settings.office_index_name: (
+        "Dubai Office Market Review H2 2025",
+        "https://www.knightfrank.ae/research/reports/dubai-office-market-review",
+    ),
+}
+
 
 def _get(obj, key, default=None):
     """Read a key from either a dict-like or attribute-style SDK response object."""
@@ -49,9 +60,13 @@ def search_index(index_name: str, query: str) -> tuple[str, list[Source]]:
             continue
         source_name = _get(fields, "source", index_name)
         context_parts.append(f"[{i}] (source: {source_name})\n{text}")
+        display_name, source_url = REPORT_SOURCES.get(
+            index_name, (str(source_name), None)
+        )
         sources.append(
             Source(
-                source=str(source_name),
+                source=display_name,
+                url=source_url,
                 snippet=text[:200] + ("..." if len(text) > 200 else ""),
                 score=_get(hit, "_score"),
             )
