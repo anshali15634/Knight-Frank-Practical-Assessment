@@ -1,4 +1,3 @@
-
 import os
 import logging
 from contextlib import asynccontextmanager
@@ -11,6 +10,8 @@ from pydantic import BaseModel, EmailStr, Field
 from pwdlib import PasswordHash
 from supabase import Client, create_client
 from supabase.lib.client_options import SyncClientOptions
+
+from agent.router import router as agent_router  # NEW: LangGraph agent endpoints
 
 load_dotenv()
 
@@ -53,11 +54,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Knight Frank Assessment API",
     description=(
-        "Frontend-independent registration and login API. "
+        "Frontend-independent registration and login API, plus the Knight Frank "
+        "Dubai market AI agent (/chat). "
         "Authentication uses the custom public.users table."
     ),
     version="1.0.0",
     lifespan=lifespan,
+    docs_url="/docs",    # Swagger UI
+    redoc_url="/redoc",
 )
 
 frontend_origins = [
@@ -74,6 +78,9 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
 )
+
+# NEW: mount the agent's /chat endpoint
+app.include_router(agent_router)
 
 
 # -----------------------------------------

@@ -1,7 +1,13 @@
 
-fastapi
-uvicorn[standard]
+fastapi>=0.115
+uvicorn[standard]>=0.30
 supabase
 python-dotenv
 pydantic[email]
 pwdlib[argon2]
+firecrawl-py>=3.0
+pinecone>=7.0
+google-genai>=1.0
+langgraph>=0.2
+pydantic-settings>=2.4
+pydantic>=2.8
