@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import LandingNavbar from "@/components/LandingNavBar";
-import InvestmentGlobe from "@/components/InvestmentGlobe";
 import AssetsPropertiesSearchMain from "@/components/portal/assets_properties_search_main";
 import FrankAssistant from "@/components/assistant/Frankassistant";
 
@@ -149,7 +148,8 @@ export default function LandingPage() {
               }
               aria-hidden={headingStage !== "invest"}
             >
-              Where would you like to invest?
+               Where would you like to invest{" "}
+              <span className="desktop-break" style={{ color: "#252525" }}>today?</span>
             </h1>
           </div>
 
@@ -173,10 +173,6 @@ export default function LandingPage() {
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="globe-section">
-          <InvestmentGlobe onSelectRegion={handleRegionSelect} />
         </div>
       </section>
 

@@ -1,3 +1,5 @@
+@import 'tailwindcss';
+
 /* ========================================
    1. Design tokens and global reset
 ======================================== */
@@ -23,6 +25,7 @@
 
 html {
   min-height: 100%;
+  scroll-behavior: smooth;
   /* Reserve scrollbar space so locking overflow doesn't shift the layout */
   scrollbar-gutter: stable;
 }
@@ -745,8 +748,6 @@ button:disabled {
   }
 }
 
-
-
 /* =========================================
    GLOBAL ACCENT
    ========================================= */
@@ -773,26 +774,74 @@ button:disabled {
 /* Top navbar */
 
 .landing-navbar {
-  height: 82px;
   width: 100%;
   position: sticky;
   top: 0;
   z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 6.5%;
   background: #ffffff;
   border-bottom: 1px solid var(--kf-border);
+}
+
+.landing-navbar-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  min-height: 68px;
+  padding: 0 6.5%;
 }
 
 .landing-brand {
   display: inline-flex;
   align-items: center;
+  justify-self: start;
+  min-width: 0;
+  color: var(--kf-text);
+  text-decoration: none;
+}
+
+.landing-brand-title {
+  color: var(--kf-accent);
+  font-family: var(--font-romain);
+  font-size: 18px;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3vw, 42px);
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 6.5%;
+  border-top: 1px solid #f2f2f2;
+  white-space: nowrap;
+}
+
+.landing-nav-link {
+  padding: 9px 0;
+  color: #555555;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.landing-nav-link:hover,
+.landing-nav-link:focus-visible {
+  color: var(--kf-accent);
+}
+
+.landing-nav-link:focus-visible {
+  outline: 2px solid var(--kf-accent);
+  outline-offset: 4px;
 }
 
 .profile-wrapper {
   position: relative;
+  justify-self: end;
   z-index: 60;
 }
 
@@ -800,22 +849,31 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 7px;
   min-width: 68px;
   height: 44px;
   padding: 0 13px;
   border: 1px solid transparent;
   border-radius: 999px;
-  background: #ffffff;
-  color: var(--kf-accent);
+  background: var(--kf-accent);
+  color: #ffffff;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
 }
 
 .profile-trigger:hover,
 .profile-trigger[aria-expanded="true"] {
-  background: var(--kf-accent-light);
+  background: #ffffff;
   border-color: #f5d5de;
+  color: var(--kf-accent);
+}
+
+.profile-label {
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .profile-chevron {
@@ -899,38 +957,31 @@ button:disabled {
 .investment-hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  grid-template-rows: auto auto;
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  place-items: center;
   align-content: center;
-  column-gap: 24px;
-  min-height: calc(100vh - 82px);
+  min-height: calc(100vh - 116px);
   padding: 42px 6.5% 52px;
+  scroll-margin-top: 116px;
   overflow: hidden;
-  background: #ffffff;
+  background: #252525;
 }
 
 .investment-hero::before {
   position: absolute;
-  inset: 0 auto 0 0;
+  inset: 0;
   z-index: 1;
-  width: 62%;
-  border-right: 1px solid #ffffff;
   content: "";
-  background-image: linear-gradient(
-    90deg,
-    rgb(255 255 255 / 0%) 0%,
-    rgb(255 255 255 / 30%) 70%,
-    #ffffff 100%
-  );
+  background: rgb(0 0 0 / 8%);
   pointer-events: none;
 }
 
 .investment-hero-background {
   position: absolute;
-  inset: 0 auto 0 0;
+  inset: 0;
   z-index: 0;
-  width: 62%;
+  width: 100%;
   overflow: hidden;
   pointer-events: none;
 }
@@ -946,10 +997,8 @@ button:disabled {
 .investment-intro {
   position: relative;
   z-index: 2;
-  grid-column: 1;
-  grid-row: 1;
   width: 100%;
-  max-width: 620px;
+  max-width: 1000px;
   margin: 0;
   text-align: left;
 }
@@ -1010,91 +1059,25 @@ button:disabled {
 
 .investment-description {
   max-width: 530px;
-  margin: 17px 0 0;
+  margin: 8px 0 0;
   color: var(--kf-border);
   font-size: 13px;
-  line-height: 1.8;
+  line-height: 1.6;
 }
 
-/* Globe */
-
-.globe-section {
-  position: relative;
-  z-index: 2;
-  grid-column: 2;
-  grid-row: 1 / 3;
-  display: flex;
-  justify-content: center;
-  justify-self: center;
-  width: min(78vw, 1000px);
-  max-width: none;
-  margin: 0;
-  transform: translateX(24%);
-}
-
-.investment-globe {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 1000px;
-  min-height: 360px;
-  margin: 0 auto;
-}
-
-.investment-globe canvas {
+/* Desktop: force "today?" onto a new line */
+.desktop-break {
   display: block;
-  max-width: 100%;
-  cursor: grab;
-  outline: none;
 }
 
-.investment-globe canvas:active {
-  cursor: grabbing;
-}
-
-.globe-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 360px;
-  color: var(--kf-muted);
-  font-size: 13px;
-}
-
-.globe-instruction {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  margin: 0;
-  color: #898989;
-  font-size: 11px;
-  line-height: 1.7;
-  text-align: center;
-  pointer-events: none;
-}
-
-.globe-error {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  width: max-content;
-  max-width: calc(100% - 24px);
-  margin: 0;
-  padding: 8px 12px;
-  transform: translateX(-50%);
-  border-radius: 4px;
-  color: #7A1028;
-  background: var(--error-background);
-  font-size: 12px;
-  text-align: center;
+/* Mobile: keep the heading on its natural line flow */
+@media (max-width: 700px) {
+  .desktop-break {
+    display: inline;
+  }
 }
 
 /* Region selector chips */
-
 .region-legend {
   display: flex;
   flex-wrap: wrap;
@@ -1102,9 +1085,8 @@ button:disabled {
   gap: 10px;
   width: 100%;
   max-width: 620px;
-  margin: 26px 0 0;
+  margin: 14px 0 0;
 }
-
 .region-chip {
   display: inline-flex;
   align-items: center;
@@ -1142,13 +1124,13 @@ button:disabled {
 }
 
 .portal-section {
-  min-height: calc(100vh - 82px);
-  min-height: calc(100svh - 82px);
+  min-height: calc(100vh - 116px);
+  min-height: calc(100svh - 116px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 56px 6.5%;
-  scroll-margin-top: 82px;
+  scroll-margin-top: 116px;
   border-top: 1px solid var(--kf-border);
   background: #f8f8f8;
 }
@@ -1256,52 +1238,184 @@ button:disabled {
   letter-spacing: 1.5px;
 }
 
-@media (min-width: 701px) {
-  .investment-intro {
-    position: relative;
-    z-index: 1;
+@media (max-width: 850px) {
+  .landing-navbar-top {
+    min-height: 60px;
+    padding: 0 4%;
   }
 
-  .globe-section {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index: 0;
-    grid-column: auto;
-    grid-row: auto;
-    justify-self: initial;
-    width: 100vw;
-    height: 100vw;
-    max-width: none;
-    transform: translateY(-50%);
+  .landing-brand {
+    width: max-content;
   }
 
-  .investment-globe {
-    height: 100%;
-    max-width: none;
-    min-height: 0;
+  .landing-brand-title {
+    font-size: clamp(14px, 2.5vw, 17px);
   }
+
+  .landing-nav {
+    justify-content: center;
+    gap: clamp(18px, 3vw, 30px);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .landing-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .portal-section,
+  .investment-hero {
+    min-height: calc(100vh - 108px);
+    scroll-margin-top: 108px;
+  }
+
+}
+
+.portal-placeholder-section {
+  display: grid;
+  min-height: calc(100vh - 116px);
+  min-height: calc(100svh - 116px);
+  place-items: center;
+  padding: 64px 6.5%;
+  background: #f8f8f8;
+}
+
+@media (max-width: 850px) {
+  .portal-placeholder-section {
+    min-height: calc(100vh - 108px);
+    min-height: calc(100svh - 108px);
+  }
+}
+
+.portal-placeholder-content {
+  width: 100%;
+  max-width: 760px;
+  padding: clamp(28px, 6vw, 64px);
+  border: 1px solid var(--kf-border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 36px rgb(0 0 0 / 5%);
+  animation: portalPageEnter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes portalPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.portal-placeholder-content h1 {
+  margin: 0;
+  color: #252525;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  letter-spacing: -1.2px;
+}
+
+.portal-placeholder-description {
+  max-width: 540px;
+  margin: 18px 0 0;
+  color: var(--kf-muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.portal-placeholder-note {
+  margin: 34px 0 0;
+  padding: 22px;
+  border-left: 3px solid var(--kf-accent);
+  background: #fff8fa;
+  color: #555555;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.portal-placeholder-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 28px;
+  padding: 0 18px;
+  border-radius: 4px;
+  background: var(--kf-accent);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 160ms ease;
+}
+
+.portal-placeholder-link:hover {
+  background: #ad0d30;
 }
 
 /* Mobile and tablet */
 
 @media (max-width: 700px) {
-  .landing-navbar {
-    height: 70px;
+  .landing-navbar-top {
+    min-height: 56px;
     padding: 0 20px;
+  }
+
+  .landing-navbar-top .brand-logo {
+    width: 72px;
+    max-height: 24px;
+  }
+
+  .landing-brand-title {
+    font-size: clamp(12px, 3.6vw, 15px);
+  }
+
+  .landing-nav {
+    justify-content: flex-start;
+    gap: 20px;
+    min-height: 42px;
+    overflow-x: auto;
+    padding: 0 20px;
+    scrollbar-width: none;
+  }
+
+  .landing-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .landing-nav-link {
+    padding: 7px 0;
+    font-size: 10px;
+  }
+
+  .profile-trigger {
+    min-width: 44px;
+    height: 38px;
+    gap: 4px;
+    padding: 0 8px;
+  }
+
+  .profile-trigger svg:first-of-type {
+    width: 22px;
+    height: 22px;
+  }
+
+  .profile-label {
+    display: none;
   }
 
   .investment-hero {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto;
-    align-content: start;
-    row-gap: 0;
-    min-height: auto;
+    grid-template-rows: auto;
+    align-content: center;
+    min-height: calc(100svh - 98px);
     padding: 47px 16px 38px;
   }
 
   .investment-hero::before {
-    width: 100%;
+    inset: 0;
   }
 
   .investment-hero-background {
@@ -1309,8 +1423,7 @@ button:disabled {
   }
 
   .investment-intro {
-    grid-column: 1;
-    grid-row: 1;
+    justify-self: center;
   }
 
   .investment-heading {
@@ -1345,30 +1458,7 @@ button:disabled {
     font-size: 12px;
   }
 
-  .investment-globe {
-    min-height: 310px;
-  }
-
-  .globe-section {
-    position: relative;
-    z-index: 1;
-    grid-column: 1;
-    grid-row: 3;
-    justify-self: center;
-    width: 100%;
-    max-width: 600px;
-    margin: 22px 0 0;
-    transform: none;
-  }
-
-  .globe-instruction {
-    bottom: -2px;
-    font-size: 10px;
-  }
-
   .region-legend {
-    grid-column: 1;
-    grid-row: 2;
     justify-content: flex-start;
     gap: 8px;
     margin: 24px 0 0;
@@ -1381,9 +1471,14 @@ button:disabled {
   }
 
   .portal-section {
-    min-height: calc(100svh - 70px);
+    min-height: calc(100svh - 98px);
     padding: 44px 20px;
-    scroll-margin-top: 70px;
+    scroll-margin-top: 98px;
+  }
+
+  .investment-hero {
+    min-height: calc(100svh - 98px);
+    scroll-margin-top: 98px;
   }
 
   .property-search-form {
@@ -1397,26 +1492,30 @@ button:disabled {
     gap: 8px;
     padding: 20px;
   }
+
+  .portal-placeholder-section {
+    min-height: calc(100svh - 98px);
+    padding: 36px 20px;
+  }
 }
 
-/*
-  Reduced motion for the investment page: keep a gentle opacity
-  crossfade on the headings (no movement) instead of an instant swap.
-*/
-
-@media (prefers-reduced-motion: reduce) {
-  .investment-heading {
-    transform: none;
-    transition: opacity 600ms ease;
+@media (max-width: 380px) {
+  .landing-navbar-top {
+    padding: 0 16px;
   }
 
-  .investment-heading.is-visible {
-    transition-delay: 0ms;
+  .landing-navbar-top .brand-logo {
+    width: 62px;
   }
 
-  .profile-chevron,
-  .profile-trigger,
-  .region-chip {
-    transition: none;
+  .landing-brand-title {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 381px) and (max-width: 700px) {
+  .landing-nav {
+    justify-content: center;
+    gap: 7px;
   }
 }
