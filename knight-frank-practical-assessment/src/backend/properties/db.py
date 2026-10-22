@@ -5,6 +5,7 @@ from supabase import Client, create_client
 from supabase.lib.client_options import SyncClientOptions
 
 TABLE = "kf_properties"
+FAVOURITES_TABLE = "kf_favourites"
 
 
 @lru_cache
@@ -20,3 +21,7 @@ def get_client() -> Client:
 
 def properties_table():
     return get_client().table(TABLE)
+
+
+def favourites_table():
+    return get_client().table(FAVOURITES_TABLE)

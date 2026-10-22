@@ -432,10 +432,20 @@
   color: #a32626;
 }
 
+.fp-favorite-error {
+  margin: 0 0 1rem;
+  color: #a32626;
+  font-size: 0.9rem;
+}
+
 .fp-results-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.25rem;
+}
+
+.fp-property-card-shell {
+  position: relative;
 }
 
 .fp-property-card {
@@ -460,6 +470,53 @@
   outline-offset: 3px;
 }
 
+.fp-property-card-shell:hover .fp-property-card {
+  transform: translateY(-2px);
+  border-color: var(--fp-teal);
+  box-shadow: 0 0.5rem 1.25rem rgba(18, 32, 31, 0.12);
+}
+
+.fp-favorite-button {
+  position: absolute;
+  z-index: 1;
+  right: 1rem;
+  bottom: 1rem;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--fp-line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--fp-teal);
+  cursor: pointer;
+  box-shadow: 0 0.15rem 0.6rem rgba(18, 32, 31, 0.12);
+}
+
+.fp-favorite-button:hover:not(:disabled),
+.fp-favorite-button[aria-pressed="true"] {
+  border-color: var(--fp-teal);
+  background: var(--fp-teal);
+  color: #fff;
+}
+
+.fp-favorite-button:focus-visible {
+  outline: 2px solid var(--fp-teal);
+  outline-offset: 3px;
+}
+
+.fp-favorite-button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.fp-favorite-button svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
 .fp-card-image {
   position: relative;
   aspect-ratio: 16 / 10;
@@ -472,7 +529,7 @@
 }
 
 .fp-card-content {
-  padding: 1.1rem;
+  padding: 1.1rem 1.1rem 4.25rem;
 }
 
 .fp-card-tags {
@@ -788,6 +845,11 @@
 
   .fp-results-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fp-favorite-button {
+    right: 0.85rem;
+    bottom: 0.85rem;
   }
 
   .fp-actions {

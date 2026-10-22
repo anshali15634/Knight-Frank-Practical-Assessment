@@ -8,6 +8,7 @@ type AuthResponse = {
   message: string;
   redirect_to: string | null;
   full_name?: string | null;
+  access_token?: string | null;
 };
 
 const API_BASE_URL = (
@@ -21,7 +22,10 @@ function isAuthResponse(value: unknown): value is AuthResponse {
     "message" in value &&
     typeof value.message === "string" &&
     "redirect_to" in value &&
-    (typeof value.redirect_to === "string" || value.redirect_to === null)
+    (typeof value.redirect_to === "string" || value.redirect_to === null) &&
+    (!("access_token" in value) ||
+      typeof value.access_token === "string" ||
+      value.access_token === null)
   );
 }
 
@@ -224,11 +228,21 @@ export default function AuthPanel() {
       return;
     }
 
+    if (!payload.access_token) {
+      setMessage(
+        "We received an unexpected response. Please try again, and contact support if the problem continues."
+      );
+      setMessageType("error");
+      setIsSubmitting(false);
+      return;
+    }
+
     if (payload.full_name) {
       sessionStorage.setItem("kf_user_name", payload.full_name);
     }
 
     sessionStorage.setItem("kf_user_email", email.trim());
+    sessionStorage.setItem("kf_auth_token", payload.access_token);
 
     router.push("/landing");
   }

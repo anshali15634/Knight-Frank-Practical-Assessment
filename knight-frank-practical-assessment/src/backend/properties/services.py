@@ -9,7 +9,7 @@ from uuid import UUID
 
 from postgrest import APIError
 
-from .db import properties_table
+from .db import favourites_table, properties_table
 from .query_builder import SQFT_UNITS, apply_filters, like_contains, like_exact
 from .schemas import (
     ALL_CLASSES,
@@ -99,6 +99,38 @@ def search_properties(
 def get_property(property_id: UUID) -> PropertyDetail | None:
     res = properties_table().select("*").eq("property_id", str(property_id)).limit(1).execute()
     return PropertyDetail(**res.data[0]) if res.data else None
+
+
+# ---------- Favourites ----------
+
+
+def get_favourites(user_id: UUID) -> list[str]:
+    res = (
+        favourites_table()
+        .select("property_id")
+        .eq("user_id", str(user_id))
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return [row["property_id"] for row in res.data]
+
+
+def save_favourite(user_id: UUID, property_id: UUID) -> None:
+    favourites_table().upsert(
+        {"user_id": str(user_id), "property_id": str(property_id)},
+        on_conflict="user_id,property_id",
+        ignore_duplicates=True,
+    ).execute()
+
+
+def remove_favourite(user_id: UUID, property_id: UUID) -> None:
+    (
+        favourites_table()
+        .delete()
+        .eq("user_id", str(user_id))
+        .eq("property_id", str(property_id))
+        .execute()
+    )
 
 
 # ---------- Facets (sidebar counts) ----------

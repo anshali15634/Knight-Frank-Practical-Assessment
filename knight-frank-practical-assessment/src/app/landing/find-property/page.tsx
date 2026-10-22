@@ -321,6 +321,16 @@ export default function AssetsPropertiesSearchMain({
   const [currentFilters, setCurrentFilters] = useState<SearchFilters | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
+  const [authToken] = useState<string | null>(() =>
+    typeof window === "undefined"
+      ? null
+      : window.sessionStorage.getItem("kf_auth_token"),
+  );
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => new Set());
+  const [favoritePendingIds, setFavoritePendingIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [favoriteError, setFavoriteError] = useState("");
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -342,6 +352,45 @@ export default function AssetsPropertiesSearchMain({
     () => () => requestController.current?.abort(),
     [],
   );
+
+  useEffect(() => {
+    if (!authToken) return;
+
+    const controller = new AbortController();
+    async function loadFavorites() {
+      try {
+        const response = await fetch(`${API_URL}/api/v1/properties/favorites`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error(
+            response.status === 401
+              ? "Your session has expired. Sign in again to manage saved properties."
+              : `Could not load saved properties (${response.status}).`,
+          );
+        }
+        const data: unknown = await response.json();
+        if (
+          !Array.isArray(data) ||
+          !data.every((id): id is string => typeof id === "string")
+        ) {
+          throw new Error("The saved properties response was invalid.");
+        }
+        if (!controller.signal.aborted) setFavoriteIds(new Set(data));
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (!controller.signal.aborted) {
+          setFavoriteError(
+            error instanceof Error ? error.message : "Could not load saved properties.",
+          );
+        }
+      }
+    }
+
+    void loadFavorites();
+    return () => controller.abort();
+  }, [authToken]);
 
   useEffect(() => {
     if (results) {
@@ -435,6 +484,50 @@ export default function AssetsPropertiesSearchMain({
     setDetailsLoading(true);
     setDetailsError("");
     setSelectedProperty(property);
+  }
+
+  async function toggleFavorite(propertyId: string) {
+    if (!authToken) {
+      setFavoriteError("Sign in to save properties to your favourites.");
+      return;
+    }
+
+    const isSaved = favoriteIds.has(propertyId);
+    setFavoriteError("");
+    setFavoritePendingIds((pending) => new Set(pending).add(propertyId));
+    try {
+      const response = await fetch(
+        `${API_URL}/api/v1/properties/favorites/${encodeURIComponent(propertyId)}`,
+        {
+          method: isSaved ? "DELETE" : "POST",
+          headers: { Authorization: `Bearer ${authToken}` },
+        },
+      );
+      if (!response.ok) {
+        throw new Error(
+          response.status === 401
+            ? "Your session has expired. Sign in again to manage saved properties."
+            : `Could not update saved properties (${response.status}).`,
+        );
+      }
+
+      setFavoriteIds((saved) => {
+        const next = new Set(saved);
+        if (isSaved) next.delete(propertyId);
+        else next.add(propertyId);
+        return next;
+      });
+    } catch (error) {
+      setFavoriteError(
+        error instanceof Error ? error.message : "Could not update saved properties.",
+      );
+    } finally {
+      setFavoritePendingIds((pending) => {
+        const next = new Set(pending);
+        next.delete(propertyId);
+        return next;
+      });
+    }
   }
 
   const money = new Intl.NumberFormat("en-GB", {
@@ -745,6 +838,12 @@ export default function AssetsPropertiesSearchMain({
             )}
           </div>
 
+          {favoriteError && (
+            <p className="fp-favorite-error" role="alert">
+              {favoriteError}
+            </p>
+          )}
+
           {isLoading && <p className="fp-results-message">Searching properties…</p>}
           {searchError && (
             <p className="fp-results-error" role="alert">
@@ -755,86 +854,107 @@ export default function AssetsPropertiesSearchMain({
           {results && results.items.length > 0 && (
             <div className="fp-results-grid">
               {results.items.map((property) => (
-                <article
-                  className="fp-property-card"
-                  key={property.property_id}
-                  role="button"
-                  tabIndex={0}
-                  aria-haspopup="dialog"
-                  aria-label={`View details for ${property.property_name || "untitled property"}`}
-                  onClick={(event) => openPropertyDetails(property, event.currentTarget)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      openPropertyDetails(property, event.currentTarget);
-                    }
-                  }}
-                >
-                  <div className="fp-card-image">
-                    <Image
-                      src={property.image_url || "/realestate1.jpeg"}
-                      alt={property.property_name || "Property"}
-                      fill
-                      sizes="(max-width: 36rem) 100vw, (max-width: 52rem) 50vw, 33vw"
-                      unoptimized
-                      onError={(event) => {
-                        event.currentTarget.srcset = "";
-                        event.currentTarget.src = "/realestate1.jpeg";
-                      }}
-                    />
-                  </div>
-                  <div className="fp-card-content">
-                    <div className="fp-card-tags">
-                      {property.property_type && <span>{property.property_type}</span>}
-                      {property.asset_class && <span>{property.asset_class}</span>}
+                <div className="fp-property-card-shell" key={property.property_id}>
+                  <article
+                    className="fp-property-card"
+                    role="button"
+                    tabIndex={0}
+                    aria-haspopup="dialog"
+                    aria-label={`View details for ${property.property_name || "untitled property"}`}
+                    onClick={(event) => openPropertyDetails(property, event.currentTarget)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        openPropertyDetails(property, event.currentTarget);
+                      }
+                    }}
+                  >
+                    <div className="fp-card-image">
+                      <Image
+                        src={property.image_url || "/realestate1.jpeg"}
+                        alt={property.property_name || "Property"}
+                        fill
+                        sizes="(max-width: 36rem) 100vw, (max-width: 52rem) 50vw, 33vw"
+                        unoptimized
+                        onError={(event) => {
+                          event.currentTarget.srcset = "";
+                          event.currentTarget.src = "/realestate1.jpeg";
+                        }}
+                      />
                     </div>
-                    <h3>{property.property_name || "Untitled property"}</h3>
-                    {(property.city || property.country) && (
-                      <p className="fp-card-location">
-                        {[property.city, property.country].filter(Boolean).join(", ")}
-                      </p>
-                    )}
-                    {property.short_description && (
-                      <p className="fp-card-description">{property.short_description}</p>
-                    )}
-                    <dl className="fp-card-details">
-                      {property.price_guide_price !== null && (
-                        <div>
-                          <dt>Guide price</dt>
-                          <dd>
-                            {formatMoney(
-                              property.price_guide_price,
-                              property.currency || FILTER_CURRENCY,
-                            )}
-                          </dd>
-                        </div>
+                    <div className="fp-card-content">
+                      <div className="fp-card-tags">
+                        {property.property_type && <span>{property.property_type}</span>}
+                        {property.asset_class && <span>{property.asset_class}</span>}
+                      </div>
+                      <h3>{property.property_name || "Untitled property"}</h3>
+                      {(property.city || property.country) && (
+                        <p className="fp-card-location">
+                          {[property.city, property.country].filter(Boolean).join(", ")}
+                        </p>
                       )}
-                      {property.size !== null && (
-                        <div>
-                          <dt>Size</dt>
-                          <dd>{property.size.toLocaleString()} {property.unit || ""}</dd>
-                        </div>
+                      {property.short_description && (
+                        <p className="fp-card-description">{property.short_description}</p>
                       )}
-                      {property.niy_yield !== null && (
-                        <div>
-                          <dt>Net initial yield</dt>
-                          <dd>{property.niy_yield}%</dd>
-                        </div>
-                      )}
-                      {property.rent_income_pa !== null && (
-                        <div>
-                          <dt>Rent per annum</dt>
-                          <dd>
-                            {formatMoney(
-                              property.rent_income_pa,
-                              property.currency || FILTER_CURRENCY,
-                            )}
-                          </dd>
-                        </div>
-                      )}
-                    </dl>
-                  </div>
-                </article>
+                      <dl className="fp-card-details">
+                        {property.price_guide_price !== null && (
+                          <div>
+                            <dt>Guide price</dt>
+                            <dd>
+                              {formatMoney(
+                                property.price_guide_price,
+                                property.currency || FILTER_CURRENCY,
+                              )}
+                            </dd>
+                          </div>
+                        )}
+                        {property.size !== null && (
+                          <div>
+                            <dt>Size</dt>
+                            <dd>{property.size.toLocaleString()} {property.unit || ""}</dd>
+                          </div>
+                        )}
+                        {property.niy_yield !== null && (
+                          <div>
+                            <dt>Net initial yield</dt>
+                            <dd>{property.niy_yield}%</dd>
+                          </div>
+                        )}
+                        {property.rent_income_pa !== null && (
+                          <div>
+                            <dt>Rent per annum</dt>
+                            <dd>
+                              {formatMoney(
+                                property.rent_income_pa,
+                                property.currency || FILTER_CURRENCY,
+                              )}
+                            </dd>
+                          </div>
+                        )}
+                      </dl>
+                    </div>
+                  </article>
+                  <button
+                    type="button"
+                    className="fp-favorite-button"
+                    aria-label={
+                      favoriteIds.has(property.property_id)
+                        ? `Remove ${property.property_name || "property"} from favourites`
+                        : `Save ${property.property_name || "property"} to favourites`
+                    }
+                    aria-pressed={favoriteIds.has(property.property_id)}
+                    disabled={favoritePendingIds.has(property.property_id)}
+                    onClick={() => void toggleFavorite(property.property_id)}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill={favoriteIds.has(property.property_id) ? "currentColor" : "none"}
+                    >
+                      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
+                    </svg>
+                  </button>
+                </div>
               ))}
             </div>
           )}

@@ -11,6 +11,7 @@ from pwdlib import PasswordHash
 from supabase import Client, create_client
 from supabase.lib.client_options import SyncClientOptions
 from postgrest import APIError
+from auth_tokens import create_access_token
 from properties import router as properties_router  # NEW: property search endpoints
 
 from agent.router import router as agent_router  # NEW: LangGraph agent endpoints
@@ -83,8 +84,8 @@ frontend_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=frontend_origins,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # NEW: mount the agent's /chat endpoint
@@ -109,6 +110,7 @@ class AuthResponse(BaseModel):
     message: str
     redirect_to: str | None = None
     full_name: str | None = None
+    access_token: str | None = None
 
 class HealthResponse(BaseModel):
     status: str
@@ -267,6 +269,7 @@ def login(payload: LoginRequest):
             message=f"Login successful. Welcome, {user['full_name']}!",
             redirect_to="/landing",
             full_name=user["full_name"],
+            access_token=create_access_token(user["id"]),
         )
 
     except HTTPException:

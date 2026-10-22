@@ -1,8 +1,9 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import ValidationError
 
+from auth_tokens import authenticated_user_id
 from . import services
 from .schemas import (
     FilterOptions,
@@ -113,6 +114,42 @@ def cities(region: str | None = None, country: str | None = None,
             summary="Min/max of price, rent, size and yield")
 def ranges(currency: str = Query("GBP", min_length=3, max_length=3)):
     return services.value_ranges(currency.upper())
+
+
+# ---------- Favourites ----------
+
+
+@router.get("/favorites", response_model=list[str], tags=["Favourites"])
+def get_favourites(user_id: UUID = Depends(authenticated_user_id)):
+    return services.get_favourites(user_id)
+
+
+@router.post(
+    "/favorites/{property_id}",
+    status_code=204,
+    response_class=Response,
+    tags=["Favourites"],
+)
+def save_favourite(
+    property_id: UUID,
+    user_id: UUID = Depends(authenticated_user_id),
+):
+    services.save_favourite(user_id, property_id)
+    return Response(status_code=204)
+
+
+@router.delete(
+    "/favorites/{property_id}",
+    status_code=204,
+    response_class=Response,
+    tags=["Favourites"],
+)
+def remove_favourite(
+    property_id: UUID,
+    user_id: UUID = Depends(authenticated_user_id),
+):
+    services.remove_favourite(user_id, property_id)
+    return Response(status_code=204)
 
 
 # ---------- Detail (keep last so it doesn't shadow the static routes) ----------
