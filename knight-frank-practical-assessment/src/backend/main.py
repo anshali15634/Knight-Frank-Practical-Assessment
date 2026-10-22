@@ -10,6 +10,8 @@ from pydantic import BaseModel, EmailStr, Field
 from pwdlib import PasswordHash
 from supabase import Client, create_client
 from supabase.lib.client_options import SyncClientOptions
+from postgrest import APIError
+from properties import router as properties_router  # NEW: property search endpoints
 
 from agent.router import router as agent_router  # NEW: LangGraph agent endpoints
 
@@ -64,6 +66,12 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+@app.exception_handler(APIError)
+async def supabase_api_error(request, exc: APIError):
+    logger.error("Supabase error on %s: %s", request.url.path, exc.message)
+    return JSONResponse(status_code=502, content={"detail": "Database error."})
+
+
 frontend_origins = [
     origin.strip()
     for origin in os.getenv(
@@ -81,7 +89,7 @@ app.add_middleware(
 
 # NEW: mount the agent's /chat endpoint
 app.include_router(agent_router)
-
+app.include_router(properties_router)
 
 # -----------------------------------------
 # Request and response models

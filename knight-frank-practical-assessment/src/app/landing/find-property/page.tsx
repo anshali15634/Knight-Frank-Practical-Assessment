@@ -1,7 +1,13 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import Image from "next/image";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import "./find-property.css";
+
+const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+).replace(/\/$/, "");
+const PAGE_SIZE = 20;
 
 /* ---------- Static options ---------- */
 
@@ -112,12 +118,81 @@ type SearchFilters = {
   netInitialYield: Limits;
 };
 
+type Property = {
+  property_id: string;
+  property_name: string | null;
+  city: string | null;
+  country: string | null;
+  region: string | null;
+  asset_class: string | null;
+  property_type: string | null;
+  short_description: string | null;
+  tenure: string | null;
+  sale_type: string | null;
+  price_guide_price: number | null;
+  currency: string | null;
+  niy_yield: number | null;
+  price_psf: number | null;
+  size: number | null;
+  unit: string | null;
+  tenant: string | null;
+  rent_income_pa: number | null;
+  rent_psf: number | null;
+  image_url: string | null;
+};
+
+type SearchResponse = {
+  items: Property[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  has_next: boolean;
+};
+
 type Props = {
   region?: string;
   /** Optional counts shown beside each asset class, e.g. { "Offices": 12, "All asset classes": 95 } */
   assetClassCounts?: Record<string, number>;
   onSearch?: (filters: SearchFilters) => void;
 };
+
+function formatMoney(value: number, currency: string) {
+  try {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency} ${value.toLocaleString("en-GB")}`;
+  }
+}
+
+async function searchErrorMessage(response: Response) {
+  const fallback = `Property search failed (${response.status}).`;
+
+  try {
+    const body: unknown = await response.json();
+    if (body && typeof body === "object" && "detail" in body) {
+      const detail = body.detail;
+      if (typeof detail === "string") return detail;
+      if (Array.isArray(detail)) {
+        return detail
+          .map((item) =>
+            item && typeof item === "object" && "msg" in item
+              ? String(item.msg)
+              : String(item),
+          )
+          .join(", ");
+      }
+    }
+  } catch {
+    return fallback;
+  }
+
+  return fallback;
+}
 
 /* ---------- Small building blocks ---------- */
 
@@ -256,6 +331,17 @@ export default function AssetsPropertiesSearchMain({
     yield: { min: "", max: "" },
   });
   const [searchSummary, setSearchSummary] = useState("");
+  const [results, setResults] = useState<SearchResponse | null>(null);
+  const [currentFilters, setCurrentFilters] = useState<SearchFilters | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
+  const resultsRef = useRef<HTMLElement>(null);
+  const requestController = useRef<AbortController | null>(null);
+
+  useEffect(
+    () => () => requestController.current?.abort(),
+    [],
+  );
 
   const money = new Intl.NumberFormat("en-GB", {
     style: "currency",
@@ -294,6 +380,12 @@ export default function AssetsPropertiesSearchMain({
   }
 
   function reset() {
+    requestController.current?.abort();
+    requestController.current = null;
+    setIsLoading(false);
+    setResults(null);
+    setCurrentFilters(null);
+    setSearchError("");
     setLoc({ source: region, region: startRegion, country: "", city: "" });
     setPropertyType(ALL_TYPES);
     setAssetClass(ALL_CLASSES);
@@ -306,6 +398,51 @@ export default function AssetsPropertiesSearchMain({
       yield: { min: "", max: "" },
     });
     setSearchSummary("");
+  }
+
+  async function loadProperties(filters: SearchFilters, page: number) {
+    requestController.current?.abort();
+    const controller = new AbortController();
+    requestController.current = controller;
+    setIsLoading(true);
+    setSearchError("");
+    setCurrentFilters(filters);
+    if (page === 1) setResults(null);
+
+    try {
+      const response = await fetch(`${API_URL}/api/v1/properties/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          ...filters,
+          page,
+          pageSize: PAGE_SIZE,
+          sortBy: "name",
+          sortOrder: "asc",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await searchErrorMessage(response));
+      }
+
+      const data: SearchResponse = await response.json();
+      setResults(data);
+      window.requestAnimationFrame(() =>
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      );
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setSearchError(
+        error instanceof Error ? error.message : "Unable to load properties.",
+      );
+    } finally {
+      if (requestController.current === controller) {
+        requestController.current = null;
+        setIsLoading(false);
+      }
+    }
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -337,6 +474,7 @@ export default function AssetsPropertiesSearchMain({
 
     setSearchSummary(`Search criteria: ${criteria.join(" · ")}`);
     onSearch?.(filters);
+    void loadProperties(filters, 1);
   }
 
   return (
@@ -511,6 +649,139 @@ export default function AssetsPropertiesSearchMain({
           </p>
         </form>
       </div>
+
+      {(results || isLoading || searchError) && (
+        <section
+          className="fp-results"
+          ref={resultsRef}
+          aria-labelledby={`${uid}-results-title`}
+          aria-live="polite"
+        >
+          <div className="fp-results-heading">
+            <div>
+              <p className="investment-eyebrow">PROPERTY OPPORTUNITIES</p>
+              <h2 id={`${uid}-results-title`}>Search results</h2>
+            </div>
+            {results && (
+              <p className="fp-results-count">
+                Showing {results.total === 0 ? 0 : (results.page - 1) * PAGE_SIZE + 1}
+                {"–"}
+                {Math.min(results.page * PAGE_SIZE, results.total)} of {results.total} properties
+              </p>
+            )}
+          </div>
+
+          {isLoading && <p className="fp-results-message">Searching properties…</p>}
+          {searchError && (
+            <p className="fp-results-error" role="alert">
+              {searchError}
+            </p>
+          )}
+
+          {results && results.items.length > 0 && (
+            <div className="fp-results-grid">
+              {results.items.map((property) => (
+                <article className="fp-property-card" key={property.property_id}>
+                  <div className="fp-card-image">
+                    <Image
+                      src={property.image_url || "/realestate1.jpeg"}
+                      alt={property.property_name || "Property"}
+                      fill
+                      sizes="(max-width: 36rem) 100vw, (max-width: 52rem) 50vw, 33vw"
+                      unoptimized
+                      onError={(event) => {
+                        event.currentTarget.srcset = "";
+                        event.currentTarget.src = "/realestate1.jpeg";
+                      }}
+                    />
+                  </div>
+                  <div className="fp-card-content">
+                    <div className="fp-card-tags">
+                      {property.property_type && <span>{property.property_type}</span>}
+                      {property.asset_class && <span>{property.asset_class}</span>}
+                    </div>
+                    <h3>{property.property_name || "Untitled property"}</h3>
+                    {(property.city || property.country) && (
+                      <p className="fp-card-location">
+                        {[property.city, property.country].filter(Boolean).join(", ")}
+                      </p>
+                    )}
+                    {property.short_description && (
+                      <p className="fp-card-description">{property.short_description}</p>
+                    )}
+                    <dl className="fp-card-details">
+                      {property.price_guide_price !== null && (
+                        <div>
+                          <dt>Guide price</dt>
+                          <dd>
+                            {formatMoney(
+                              property.price_guide_price,
+                              property.currency || "GBP",
+                            )}
+                          </dd>
+                        </div>
+                      )}
+                      {property.size !== null && (
+                        <div>
+                          <dt>Size</dt>
+                          <dd>{property.size.toLocaleString()} {property.unit || ""}</dd>
+                        </div>
+                      )}
+                      {property.niy_yield !== null && (
+                        <div>
+                          <dt>Net initial yield</dt>
+                          <dd>{property.niy_yield}%</dd>
+                        </div>
+                      )}
+                      {property.rent_income_pa !== null && (
+                        <div>
+                          <dt>Rent per annum</dt>
+                          <dd>
+                            {formatMoney(
+                              property.rent_income_pa,
+                              property.currency || "GBP",
+                            )}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+
+          {results && results.items.length === 0 && !isLoading && (
+            <p className="fp-results-message">
+              No properties match your search. Try adjusting your filters.
+            </p>
+          )}
+
+          {results && results.total_pages > 1 && (
+            <nav className="fp-pagination" aria-label="Search result pages">
+              <button
+                type="button"
+                className="fp-page-button"
+                onClick={() => currentFilters && void loadProperties(currentFilters, results.page - 1)}
+                disabled={results.page <= 1 || isLoading}
+              >
+                Previous
+              </button>
+              <span>
+                Page {results.page} of {results.total_pages}
+              </span>
+              <button
+                type="button"
+                className="fp-page-button"
+                onClick={() => currentFilters && void loadProperties(currentFilters, results.page + 1)}
+                disabled={!results.has_next || isLoading}
+              >
+                Next
+              </button>
+            </nav>
+          )}
+        </section>
+      )}
     </div>
   );
 }
