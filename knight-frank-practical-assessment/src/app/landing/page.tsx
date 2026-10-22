@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import LandingNavbar from "@/components/LandingNavBar";
-import AssetsPropertiesSearchMain from "@/components/portal/assets_properties_search_main";
+import FindProperty from "./find-property/page";
 import FrankAssistant from "@/components/assistant/Frankassistant";
 
 const REGIONS = [
@@ -181,7 +181,7 @@ export default function LandingPage() {
         ref={portalRef}
         aria-label="Property search portal"
       >
-        <AssetsPropertiesSearchMain region={selectedRegion} />
+        <FindProperty region={selectedRegion} />
       </section>
 
       <footer className="investment-footer">
