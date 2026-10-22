@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import LandingNavbar from "@/components/LandingNavBar";
 import FrankAssistant from "@/components/assistant/Frankassistant";
+import PropertyCollection from "@/components/portal/PropertyCollection";
 
 const SAVED_PROP_BG = "/realestate5.jpeg";
 
@@ -11,8 +11,11 @@ export default function SavedPropertiesPage() {
   const [userName, setUserName] = useState("User");
 
   useEffect(() => {
-    const savedName = sessionStorage.getItem("kf_user_name");
-    if (savedName) setUserName(savedName);
+    const frame = window.requestAnimationFrame(() => {
+      const savedName = sessionStorage.getItem("kf_user_name");
+      if (savedName) setUserName(savedName);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   return (
@@ -53,18 +56,7 @@ export default function SavedPropertiesPage() {
         className="portal-section"
         aria-label="Saved properties"
       >
-        <div className="portal-placeholder-content">
-          <p className="portal-placeholder-note">
-            Your saved properties will appear here. This section is a
-            placeholder while property saving is being prepared.
-          </p>
-          <Link
-            href="/landing#find-property"
-            className="portal-placeholder-link"
-          >
-            Find a Property
-          </Link>
-        </div>
+        <PropertyCollection savedOnly />
       </section>
 
       <footer className="investment-footer">

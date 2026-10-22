@@ -10,6 +10,7 @@ from .schemas import (
     FilterRanges,
     PaginatedProperties,
     PropertyDetail,
+    PropertySummary,
     Range,
     SearchFilters,
     SearchRequest,
@@ -122,6 +123,15 @@ def ranges(currency: str = Query("GBP", min_length=3, max_length=3)):
 @router.get("/favorites", response_model=list[str], tags=["Favourites"])
 def get_favourites(user_id: UUID = Depends(authenticated_user_id)):
     return services.get_favourites(user_id)
+
+
+@router.get(
+    "/favorites/properties",
+    response_model=list[PropertySummary],
+    tags=["Favourites"],
+)
+def get_favourite_properties(user_id: UUID = Depends(authenticated_user_id)):
+    return services.get_favourite_properties(user_id)
 
 
 @router.post(

@@ -115,6 +115,24 @@ def get_favourites(user_id: UUID) -> list[str]:
     return [row["property_id"] for row in res.data]
 
 
+def get_favourite_properties(user_id: UUID) -> list[PropertySummary]:
+    property_ids = get_favourites(user_id)
+    if not property_ids:
+        return []
+
+    res = (
+        properties_table()
+        .select(SUMMARY_COLUMNS)
+        .in_("property_id", property_ids)
+        .execute()
+    )
+    properties = {
+        row["property_id"]: PropertySummary(**row)
+        for row in res.data
+    }
+    return [properties[property_id] for property_id in property_ids if property_id in properties]
+
+
 def save_favourite(user_id: UUID, property_id: UUID) -> None:
     favourites_table().upsert(
         {"user_id": str(user_id), "property_id": str(property_id)},

@@ -1,0 +1,58 @@
+.fp-property-collection {
+  --fp-ink: #12201f;
+  --fp-muted: #566462;
+  --fp-teal: #0a4d4e;
+  --fp-teal-dark: #06393a;
+  --fp-stone-soft: #ece9e1;
+  --fp-line: #c9c4b8;
+  --fp-bg: #ffffff;
+  width: 100%;
+  color: var(--fp-ink);
+}
+
+.fp-property-card-shell {
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.fp-property-card-shell[data-removing="true"] {
+  transform: translateY(0.5rem) scale(0.98);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fp-saved-empty {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  padding: 2rem;
+  border: 1px solid var(--fp-line, #c9c4b8);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.fp-property-collection .fp-favorite-button {
+  border: 2px solid var(--fp-teal);
+  background: #ffffff;
+  color: var(--fp-teal);
+}
+
+.fp-property-collection .fp-favorite-button:hover:not(:disabled),
+.fp-property-collection .fp-favorite-button[aria-pressed="true"] {
+  border-color: var(--fp-teal);
+  background: var(--fp-teal);
+  color: #ffffff;
+}
+
+.fp-property-collection .fp-favorite-button svg {
+  display: block;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fp-property-card-shell {
+    transition: none;
+  }
+}
