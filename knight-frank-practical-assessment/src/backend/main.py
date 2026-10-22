@@ -58,7 +58,7 @@ app = FastAPI(
     description=(
         "Frontend-independent registration and login API, plus the Knight Frank "
         "Dubai market AI agent (/chat). "
-        "Authentication uses the custom public.users table."
+        "Authentication uses the custom public.kf_users table."
     ),
     version="1.0.0",
     lifespan=lifespan,
@@ -125,7 +125,7 @@ def normalize_email(email: str) -> str:
 def get_user_by_email(email: str) -> dict | None:
     """Find one user by normalized email."""
     result = (
-        supabase.table("users")
+        supabase.table("kf_users")
         .select("id, full_name, email, password")
         .eq("email", normalize_email(email))
         .limit(1)
@@ -207,7 +207,7 @@ def signup(payload: SignupRequest):
         }
 
         result = (
-            supabase.table("users")
+            supabase.table("kf_users")
             .insert(new_user)
             .execute()
         )

@@ -443,6 +443,21 @@
   border: 1px solid var(--fp-line);
   border-radius: 0.75rem;
   background: #fff;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.fp-property-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--fp-teal);
+  box-shadow: 0 0.5rem 1.25rem rgba(18, 32, 31, 0.12);
+}
+
+.fp-property-card:focus-visible {
+  outline: 2px solid var(--fp-teal);
+  outline-offset: 3px;
 }
 
 .fp-card-image {
@@ -560,6 +575,162 @@
   opacity: 0.5;
 }
 
+/* ---------- Property details side pane ---------- */
+
+.fp-detail-overlay {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(12, 24, 23, 0.48);
+  animation: fp-fade-in 0.2s ease-out both;
+}
+
+.fp-detail-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(38rem, 100%);
+  height: 100%;
+  background: #fff;
+  box-shadow: -0.75rem 0 2rem rgba(0, 0, 0, 0.18);
+  animation: fp-slide-in 0.25s ease-out both;
+}
+
+.fp-detail-header {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.5rem;
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid var(--fp-line);
+  background: #fff;
+}
+
+.fp-detail-header h2 {
+  margin: 0;
+  color: var(--fp-ink);
+  font-size: 1.2rem;
+}
+
+.fp-detail-close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--fp-line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--fp-ink);
+  cursor: pointer;
+}
+
+.fp-detail-close:hover {
+  background: var(--fp-stone-soft);
+}
+
+.fp-detail-close:focus-visible {
+  outline: 2px solid var(--fp-teal);
+  outline-offset: 2px;
+}
+
+.fp-detail-close svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
+.fp-detail-content {
+  min-height: 0;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.fp-detail-image {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0.65rem;
+  background: var(--fp-stone-soft);
+}
+
+.fp-detail-image img {
+  object-fit: cover;
+}
+
+.fp-detail-name {
+  margin: 1.25rem 0 1rem;
+  color: var(--fp-ink);
+  font-size: 1.4rem;
+  line-height: 1.35;
+}
+
+.fp-detail-status,
+.fp-detail-error {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.fp-detail-status {
+  color: var(--fp-muted);
+}
+
+.fp-detail-error {
+  color: #a32626;
+}
+
+.fp-detail-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--fp-line);
+}
+
+.fp-detail-list > div {
+  min-width: 0;
+  padding: 0.85rem 0.75rem 0.85rem 0;
+  border-bottom: 1px solid var(--fp-line);
+}
+
+.fp-detail-list .fp-detail-wide {
+  grid-column: 1 / -1;
+}
+
+.fp-detail-list dt {
+  margin-bottom: 0.25rem;
+  color: var(--fp-muted);
+  font-size: 0.78rem;
+}
+
+.fp-detail-list dd {
+  margin: 0;
+  color: var(--fp-ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+@keyframes fp-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fp-slide-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 52rem) {
@@ -635,11 +806,37 @@
   .fp-pagination {
     gap: 0.75rem;
   }
+
+  .fp-detail-header {
+    min-height: 4rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .fp-detail-content {
+    padding: 1rem;
+  }
+
+  .fp-detail-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fp-detail-list .fp-detail-wide {
+    grid-column: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .fp-disclosure svg,
   .fp-submit {
     transition: transform 0.2s ease, background-color 0.15s ease;
+  }
+
+  .fp-property-card {
+    transition: none;
+  }
+
+  .fp-detail-overlay,
+  .fp-detail-panel {
+    animation-duration: 0.01ms;
   }
 }
