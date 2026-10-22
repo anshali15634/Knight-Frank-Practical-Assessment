@@ -8,6 +8,7 @@ const API_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
 ).replace(/\/$/, "");
 const PAGE_SIZE = 20;
+const FILTER_CURRENCY = "AED";
 
 /* ---------- Static options ---------- */
 
@@ -36,42 +37,6 @@ const ASSET_CLASSES = [
   "Mixed Use",
   "Other",
 ];
-
-const CURRENCIES = [
-  { code: "GBP" },
-  { code: "USD" },
-  { code: "EUR" },
-  { code: "AUD" },
-  { code: "CAD" },
-  { code: "NZD" },
-  { code: "SGD" },
-  { code: "AED" },
-  { code: "SAR" },
-  { code: "QAR" },
-  { code: "ZAR" },
-  { code: "KES" },
-  { code: "MAD" },
-  { code: "JPY" },
-  { code: "CNY" },
-  { code: "INR" },
-  { code: "THB" },
-  { code: "BRL" },
-  { code: "CLP" },
-];
-
-function currencyLabel(code: string) {
-  try {
-    const name = new Intl.DisplayNames(["en"], { type: "currency" }).of(code);
-    return name ? `${code} – ${name}` : code;
-  } catch {
-    return code;
-  }
-}
-
-const CURRENCY_OPTIONS = CURRENCIES.map((c) => ({
-  value: c.code,
-  label: currencyLabel(c.code),
-}));
 
 /* ---------- Filter ranges ---------- */
 
@@ -323,7 +288,6 @@ export default function AssetsPropertiesSearchMain({
   const [assetClass, setAssetClass] = useState(ALL_CLASSES);
   const [propertyName, setPropertyName] = useState("");
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [currency, setCurrency] = useState("GBP");
   const [ranges, setRanges] = useState<Record<RangeKey, RangeInputValue>>({
     price: { min: "", max: "" },
     rent: { min: "", max: "" },
@@ -343,9 +307,15 @@ export default function AssetsPropertiesSearchMain({
     [],
   );
 
+  useEffect(() => {
+    if (results) {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [results]);
+
   const money = new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency,
+    currency: FILTER_CURRENCY,
     notation: "compact",
     maximumFractionDigits: 1,
   });
@@ -370,15 +340,6 @@ export default function AssetsPropertiesSearchMain({
     setLoc({ source: region, region: next, country: "", city: "" });
   }
 
-  function changeCurrency(next: string) {
-    setCurrency(next);
-    setRanges((r) => ({
-      ...r,
-      price: { min: "", max: "" },
-      rent: { min: "", max: "" },
-    }));
-  }
-
   function reset() {
     requestController.current?.abort();
     requestController.current = null;
@@ -390,7 +351,6 @@ export default function AssetsPropertiesSearchMain({
     setPropertyType(ALL_TYPES);
     setAssetClass(ALL_CLASSES);
     setPropertyName("");
-    setCurrency("GBP");
     setRanges({
       price: { min: "", max: "" },
       rent: { min: "", max: "" },
@@ -429,9 +389,6 @@ export default function AssetsPropertiesSearchMain({
 
       const data: SearchResponse = await response.json();
       setResults(data);
-      window.requestAnimationFrame(() =>
-        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-      );
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       setSearchError(
@@ -455,7 +412,7 @@ export default function AssetsPropertiesSearchMain({
       propertyType: propertyType === ALL_TYPES ? null : propertyType,
       assetClass: assetClass === ALL_CLASSES ? null : assetClass,
       propertyName: propertyName.trim() || null,
-      currency,
+      currency: FILTER_CURRENCY,
       price: rangeLimits(ranges.price),
       rentPerAnnum: rangeLimits(ranges.rent),
       sizeSqft: rangeLimits(ranges.size),
@@ -608,16 +565,6 @@ export default function AssetsPropertiesSearchMain({
               </h3>
 
               <div className="fp-advanced" id={`${uid}-advanced`} hidden={!advancedOpen}>
-                <div className="fp-currency">
-                  <PillSelect
-                    id={`${uid}-currency`}
-                    label="Currency for price and rent"
-                    value={currency}
-                    defaultValue="GBP"
-                    options={CURRENCY_OPTIONS}
-                    onChange={changeCurrency}
-                  />
-                </div>
                 <div className="fp-advanced-grid">
                   {RANGE_KEYS.map((key) => (
                     <RangeInputs
@@ -716,7 +663,7 @@ export default function AssetsPropertiesSearchMain({
                           <dd>
                             {formatMoney(
                               property.price_guide_price,
-                              property.currency || "GBP",
+                              property.currency || FILTER_CURRENCY,
                             )}
                           </dd>
                         </div>
@@ -739,7 +686,7 @@ export default function AssetsPropertiesSearchMain({
                           <dd>
                             {formatMoney(
                               property.rent_income_pa,
-                              property.currency || "GBP",
+                              property.currency || FILTER_CURRENCY,
                             )}
                           </dd>
                         </div>

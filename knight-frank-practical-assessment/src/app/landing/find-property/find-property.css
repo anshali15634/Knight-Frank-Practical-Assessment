@@ -297,10 +297,6 @@
   display: none;
 }
 
-.fp-currency {
-  max-width: 18rem;
-}
-
 .fp-advanced-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -644,6 +640,6 @@
 @media (prefers-reduced-motion: reduce) {
   .fp-disclosure svg,
   .fp-submit {
-    transition: none;
+    transition: transform 0.2s ease, background-color 0.15s ease;
   }
 }
