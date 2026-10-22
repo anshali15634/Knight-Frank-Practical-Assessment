@@ -41,6 +41,10 @@ def filters_from_query(
     size_max: float | None = Query(None, ge=0),
     yield_min: float | None = Query(None, ge=0, description="Net initial yield, %"),
     yield_max: float | None = Query(None, ge=0),
+    price_psf_min: float | None = Query(None, ge=0),
+    price_psf_max: float | None = Query(None, ge=0),
+    rent_psf_min: float | None = Query(None, ge=0),
+    rent_psf_max: float | None = Query(None, ge=0),
 ) -> SearchFilters:
     try:
         return SearchFilters(
@@ -51,6 +55,8 @@ def filters_from_query(
             rent_per_annum=Range(min=rent_min, max=rent_max),
             size_sqft=Range(min=size_min, max=size_max),
             net_initial_yield=Range(min=yield_min, max=yield_max),
+            price_psf=Range(min=price_psf_min, max=price_psf_max),
+            rent_psf=Range(min=rent_psf_min, max=rent_psf_max),
         )
     except ValidationError as e:
         raise HTTPException(422, detail=[{"loc": x["loc"], "msg": x["msg"]} for x in e.errors()])

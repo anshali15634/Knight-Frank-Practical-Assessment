@@ -43,7 +43,7 @@ export default function FrankBlob({
     >
       <span className="frank-blob__bob">
         <Image
-          src="/sphere.png"
+          src="/house.png"
           alt=""
           width={size * 2}
           height={size * 2}

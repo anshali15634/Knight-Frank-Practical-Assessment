@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse
 
 from agent.graph import agent_graph
 from agent.models import ChatRequest, ChatResponse, Intent, Source
+from properties.schemas import PropertySummary
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,8 @@ def _progress_for_intent(intent: str) -> str:
         return "Looking through Knight Frank's Residential Market Review..."
     if intent == Intent.PRESS_RELEASES.value:
         return "Checking the latest Knight Frank newsroom announcements..."
+    if intent == Intent.PROPERTY_SEARCH.value:
+        return "Searching Knight Frank property listings..."
     return "Generating your response..."
 
 
@@ -54,6 +57,7 @@ def _chat_events(request: ChatRequest, session_id: str) -> Iterator[str]:
                             Intent.OFFICE_MARKET.value,
                             Intent.RESIDENTIAL_MARKET.value,
                             Intent.PRESS_RELEASES.value,
+                            Intent.PROPERTY_SEARCH.value,
                         }
                         else "generating"
                     )
@@ -76,6 +80,15 @@ def _chat_events(request: ChatRequest, session_id: str) -> Iterator[str]:
                             "message": "Generating your response...",
                         },
                     )
+                elif node_name == "search_properties":
+                    yield _stream_event("complete", {
+                        "session_id": session_id,
+                        "intent": result["intent"],
+                        "answer": result["answer"],
+                        "sources": [],
+                        "properties": result.get("properties", []),
+                    })
+                    return
                 elif node_name == "generate_response":
                     yield _stream_event("complete", {
                         "session_id": session_id,
@@ -131,4 +144,5 @@ def chat(request: ChatRequest) -> ChatResponse:
         intent=Intent(result["intent"]),
         answer=result["answer"],
         sources=[Source(**s) for s in result.get("sources", [])],
+        properties=[PropertySummary(**p) for p in result.get("properties", [])],
     )

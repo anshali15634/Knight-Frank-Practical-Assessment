@@ -15,11 +15,21 @@ import FrankBlob, { type Gaze } from "@/components/assistant/Frankblob";
 import "./frank-assistant.css";
 
 type Source = { source: string; url?: string | null; snippet?: string | null };
+type PropertyResult = {
+  property_id: string;
+  property_name: string | null;
+  city: string | null;
+  country: string | null;
+  price_guide_price: number | null;
+  currency: string | null;
+  niy_yield: number | null;
+};
 type Message = {
   id: number;
   role: "user" | "assistant";
   text: string;
   sources?: Source[];
+  properties?: PropertyResult[];
 };
 type ProgressStage = "analyzing" | "research" | "generating";
 type ProgressStep = {
@@ -34,6 +44,7 @@ type AgentEventData = {
   answer?: unknown;
   session_id?: unknown;
   sources?: unknown;
+  properties?: unknown;
 };
 
 const GREETING =
@@ -50,6 +61,41 @@ function isSource(value: unknown): value is Source {
     "source" in value &&
     typeof value.source === "string"
   );
+}
+
+function isPropertyResult(value: unknown): value is PropertyResult {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "property_id" in value &&
+    typeof value.property_id === "string" &&
+    "property_name" in value &&
+    (typeof value.property_name === "string" || value.property_name === null) &&
+    "city" in value &&
+    (typeof value.city === "string" || value.city === null) &&
+    "country" in value &&
+    (typeof value.country === "string" || value.country === null) &&
+    "price_guide_price" in value &&
+    (typeof value.price_guide_price === "number" || value.price_guide_price === null) &&
+    "currency" in value &&
+    (typeof value.currency === "string" || value.currency === null) &&
+    "niy_yield" in value &&
+    (typeof value.niy_yield === "number" || value.niy_yield === null)
+  );
+}
+
+function formatPropertyPrice(property: PropertyResult) {
+  if (property.price_guide_price === null) return null;
+  const currency = property.currency || "AED";
+  try {
+    return new Intl.NumberFormat("en", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(property.price_guide_price);
+  } catch {
+    return `${currency} ${property.price_guide_price.toLocaleString("en")}`;
+  }
 }
 
 function normalizedUrl(url: string) {
@@ -120,6 +166,31 @@ function MessageBubble({
               </li>
             ))}
           </ul>
+        )}
+        {message.properties && message.properties.length > 0 && (
+          <div className="frank-properties" aria-label="Matching properties">
+            {message.properties.map((property) => {
+              const location = [property.city, property.country]
+                .filter(Boolean)
+                .join(", ");
+              const price = formatPropertyPrice(property);
+              return (
+                <article className="frank-property" key={property.property_id}>
+                  <h3>{property.property_name || "Property listing"}</h3>
+                  {location && <p>{location}</p>}
+                  {(price || property.niy_yield !== null) && (
+                    <p className="frank-property__metrics">
+                      {price && <span>{price}</span>}
+                      {property.niy_yield !== null && (
+                        <span>NIY {property.niy_yield}%</span>
+                      )}
+                    </p>
+                  )}
+                  <a href="/landing/find-property">Find Properties</a>
+                </article>
+              );
+            })}
+          </div>
         )}
       </div>
     </li>
@@ -267,9 +338,14 @@ export default function FrankAssistant() {
     setOpen((o) => !o);
   }
 
-  function addMessage(role: Message["role"], text: string, sources?: Source[]) {
+  function addMessage(
+    role: Message["role"],
+    text: string,
+    sources?: Source[],
+    properties?: PropertyResult[],
+  ) {
     const id = nextId.current++;
-    setMessages((prev) => [...prev, { id, role, text, sources }]);
+    setMessages((prev) => [...prev, { id, role, text, sources, properties }]);
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
@@ -362,7 +438,10 @@ export default function FrankAssistant() {
           const sources = Array.isArray(data.sources)
             ? uniqueSources(data.sources.filter(isSource))
             : [];
-          addMessage("assistant", data.answer, sources);
+          const properties = Array.isArray(data.properties)
+            ? data.properties.filter(isPropertyResult)
+            : [];
+          addMessage("assistant", data.answer, sources, properties);
           receivedAnswer = true;
         }
       });

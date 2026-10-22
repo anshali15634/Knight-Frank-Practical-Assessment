@@ -329,6 +329,45 @@
   text-decoration: underline;
 }
 
+.frank-properties {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.frank-property {
+  padding: 10px 11px;
+  border: 1px solid #e5e9f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.frank-property h3 {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.frank-property p {
+  margin-top: 4px;
+  color: #586174;
+  font-size: 0.8rem;
+}
+
+.frank-property .frank-property__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #1c2433;
+}
+
+.frank-property a {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .frank-msg--user .frank-msg__bubble {
   max-width: 80%;
   border-radius: 18px 18px 4px 18px;

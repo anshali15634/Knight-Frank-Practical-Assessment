@@ -22,12 +22,6 @@ CONTACT_RESPONSE = (
     f"{settings.contact_url}"
 )
 
-PROPERTY_SEARCH_RESPONSE = (
-    "Property search isn't available in this assistant just yet. In the meantime, you can browse "
-    "listings at https://www.knightfrank.ae/residential, or use the contact form and our team will "
-    f"help you directly: {settings.contact_url}"
-)
-
 NO_CONTEXT_RESPONSE = (
     "I couldn't find anything relevant to that in the Knight Frank report. Could you rephrase your "
     "question or ask about a specific metric, area or time period?"
@@ -41,7 +35,6 @@ PRESS_UNAVAILABLE_RESPONSE = (
 AUTOMATED_RESPONSES = {
     Intent.OFF_TOPIC.value: OFF_TOPIC_RESPONSE,
     Intent.CONTACT.value: CONTACT_RESPONSE,
-    Intent.PROPERTY_SEARCH.value: PROPERTY_SEARCH_RESPONSE,
 }
 
 # ----------------------------------------------------------------- prompts --
@@ -70,7 +63,7 @@ REPORT_NAMES = {
 }
 
 
-def _history_block(history: list[dict], max_messages: int = 6) -> str:
+def _history_block(history: list[dict], max_messages: int = 2) -> str:
     if not history:
         return ""
     lines = "\n".join(f"{m['role']}: {m['content']}" for m in history[-max_messages:])

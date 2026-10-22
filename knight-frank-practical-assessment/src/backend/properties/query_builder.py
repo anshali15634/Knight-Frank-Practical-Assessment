@@ -84,12 +84,14 @@ def apply_filters(q, f: SearchFilters, *, skip: frozenset[str] = frozenset()):
             q = q.or_(",".join(f"{c}.ilike.*{term}*" for c in KEYWORD_COLUMNS))
 
     # Price and rent amounts only make sense within one currency.
-    if f.price.active or f.rent_per_annum.active:
+    if f.price.active or f.rent_per_annum.active or f.price_psf.active or f.rent_psf.active:
         if f.currency:
             q = q.ilike("currency", like_exact(f.currency))
     q = _between(q, "price_guide_price", f.price, integer=True)
     q = _between(q, "rent_income_pa", f.rent_per_annum, integer=True)
     q = _between(q, "niy_yield", f.net_initial_yield, integer=False)
+    q = _between(q, "price_psf", f.price_psf, integer=True)
+    q = _between(q, "rent_psf", f.rent_psf, integer=True)
 
     if f.size_sqft.active:
         q = q.or_(size_or_expression(f.size_sqft))

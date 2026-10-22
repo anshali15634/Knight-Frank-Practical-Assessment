@@ -79,6 +79,8 @@ class SearchFilters(BaseModel):
     rent_per_annum: Range = Field(default_factory=Range, alias="rentPerAnnum")
     size_sqft: Range = Field(default_factory=Range, alias="sizeSqft")
     net_initial_yield: Range = Field(default_factory=Range, alias="netInitialYield")
+    price_psf: Range = Field(default_factory=Range, alias="pricePsf")
+    rent_psf: Range = Field(default_factory=Range, alias="rentPsf")
 
     @field_validator(
         "region", "country", "city", "property_type", "asset_class",
@@ -104,7 +106,10 @@ class SearchFilters(BaseModel):
             raise ValueError("currency must be a 3-letter ISO code")
         return v
 
-    @field_validator("price", "rent_per_annum", "size_sqft", "net_initial_yield", mode="before")
+    @field_validator(
+        "price", "rent_per_annum", "size_sqft", "net_initial_yield", "price_psf", "rent_psf",
+        mode="before",
+    )
     @classmethod
     def _null_range(cls, v: Any):
         return {} if v is None else v
