@@ -8,11 +8,18 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 # Frontend "no filter" labels. Treated as null so the UI can send its raw select values.
 ALL_REGIONS = "All regions"
 ALL_TYPES = "All property types"
+ALL_TENURES = "All tenures"
 ALL_CLASSES = "All asset classes"
-_SENTINELS = {ALL_REGIONS.lower(), ALL_TYPES.lower(), ALL_CLASSES.lower()}
+_SENTINELS = {
+    ALL_REGIONS.lower(),
+    ALL_TYPES.lower(),
+    ALL_TENURES.lower(),
+    ALL_CLASSES.lower(),
+}
 
 REGIONS = ["UK", "Europe", "USA", "Middle East", "Asia", "Australia", "Africa", "Rest of the World"]
 PROPERTY_TYPES = ["Commercial", "Residential"]
+TENURES = ["Leasehold", "Freehold", "Not mentioned"]
 ASSET_CLASSES = [
     "Industrial, Logistics & Data Centres",
     "Retail",

@@ -16,6 +16,7 @@ from .schemas import (
     ASSET_CLASSES,
     PROPERTY_TYPES,
     REGIONS,
+    TENURES,
     FilterOptions,
     FilterRanges,
     MinMax,
@@ -207,7 +208,7 @@ def filter_options() -> FilterOptions:
         property_types=_canonical_first(PROPERTY_TYPES, distinct_values("property_type")),
         asset_classes=_canonical_first(ASSET_CLASSES, distinct_values("asset_class")),
         sale_types=distinct_values("sale_type"),
-        tenures=distinct_values("tenure"),
+        tenures=_canonical_first(TENURES, distinct_values("tenure")),
         currencies=distinct_values("currency"),
     )
 

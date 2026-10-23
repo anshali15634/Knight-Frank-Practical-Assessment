@@ -30,7 +30,7 @@ def filters_from_query(
     property_name: str | None = Query(None, description="Partial, case-insensitive"),
     q: str | None = Query(None, description="Keyword search across name, city, country, description, tenant"),
     sale_type: str | None = None,
-    tenure: str | None = None,
+    tenure: str | None = Query(None, description="Leasehold | Freehold | Not mentioned"),
     is_synthetic: bool | None = None,
     currency: str | None = Query(None, description="Applies only with a price or rent range, e.g. GBP"),
     price_min: float | None = Query(None, ge=0),

@@ -74,7 +74,7 @@ def apply_filters(q, f: SearchFilters, *, skip: frozenset[str] = frozenset()):
     if f.sale_type:
         q = q.ilike("sale_type", like_exact(f.sale_type))
     if f.tenure:
-        q = q.ilike("tenure", like_contains(f.tenure))
+        q = q.ilike("tenure", like_exact(f.tenure))
     if f.is_synthetic is not None:
         q = q.eq("is_synthetic", f.is_synthetic)
 

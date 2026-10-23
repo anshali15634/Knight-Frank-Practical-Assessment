@@ -29,6 +29,9 @@ const REGIONS = [
 const ALL_TYPES = "All property types";
 const PROPERTY_TYPES = [ALL_TYPES, "Commercial", "Residential"];
 
+const ALL_TENURES = "All tenures";
+const TENURES = [ALL_TENURES, "Leasehold", "Freehold", "Not mentioned"];
+
 const ALL_CLASSES = "All asset classes";
 const ASSET_CLASSES = [
   "Industrial, Logistics & Data Centres",
@@ -75,6 +78,7 @@ type SearchFilters = {
   country: string | null;
   city: string | null;
   propertyType: string | null;
+  tenure: string | null;
   assetClass: string | null;
   propertyName: string | null;
   currency: string;
@@ -251,6 +255,7 @@ export default function AssetsPropertiesSearchMain({
     loc.source === region ? loc : { source: region, region: startRegion, country: "", city: "" };
 
   const [propertyType, setPropertyType] = useState(ALL_TYPES);
+  const [tenure, setTenure] = useState(ALL_TENURES);
   const [assetClass, setAssetClass] = useState(ALL_CLASSES);
   const [propertyName, setPropertyName] = useState("");
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -315,6 +320,7 @@ export default function AssetsPropertiesSearchMain({
     setSearchError("");
     setLoc({ source: region, region: startRegion, country: "", city: "" });
     setPropertyType(ALL_TYPES);
+    setTenure(ALL_TENURES);
     setAssetClass(ALL_CLASSES);
     setPropertyName("");
     setRanges({
@@ -376,6 +382,7 @@ export default function AssetsPropertiesSearchMain({
       country: current.country.trim() || null,
       city: current.city.trim() || null,
       propertyType: propertyType === ALL_TYPES ? null : propertyType,
+      tenure: tenure === ALL_TENURES ? null : tenure,
       assetClass: assetClass === ALL_CLASSES ? null : assetClass,
       propertyName: propertyName.trim() || null,
       currency: FILTER_CURRENCY,
@@ -388,6 +395,7 @@ export default function AssetsPropertiesSearchMain({
     const criteria = [
       trail.length ? trail.join(" › ") : "all locations",
       propertyType === ALL_TYPES ? "all property types" : propertyType.toLowerCase(),
+      tenure === ALL_TENURES ? "all tenures" : tenure.toLowerCase(),
       assetClass === ALL_CLASSES ? "all asset classes" : assetClass,
     ];
     if (filters.propertyName) criteria.push(`name “${filters.propertyName}”`);
@@ -436,7 +444,7 @@ export default function AssetsPropertiesSearchMain({
         <form className="fp-form" onSubmit={handleSubmit}>
           <div className="fp-stack">
             <div className="fp-group" data-level="1">
-              <h3 className="fp-group-title">Region and property type</h3>
+              <h3 className="fp-group-title">Region, property type and tenure</h3>
               <div className="fp-row">
                 <PillSelect
                   id={`${uid}-region`}
@@ -453,6 +461,14 @@ export default function AssetsPropertiesSearchMain({
                   defaultValue={ALL_TYPES}
                   options={PROPERTY_TYPES.map((t) => ({ value: t, label: t }))}
                   onChange={setPropertyType}
+                />
+                <PillSelect
+                  id={`${uid}-tenure`}
+                  label="Tenure"
+                  value={tenure}
+                  defaultValue={ALL_TENURES}
+                  options={TENURES.map((option) => ({ value: option, label: option }))}
+                  onChange={setTenure}
                 />
               </div>
             </div>
