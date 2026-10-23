@@ -25,6 +25,8 @@ def _api_keys() -> tuple[str, ...]:
             settings.google_api_key2,
             settings.google_api_key3,
             settings.google_api_key4,
+            settings.google_api_key5,
+            settings.google_api_key6,
         )
         if key
     )

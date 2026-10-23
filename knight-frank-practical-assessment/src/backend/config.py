@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     google_api_key2: str | None = None
     google_api_key3: str | None = None
     google_api_key4: str | None = None
+    google_api_key5: str | None = None
+    google_api_key6: str | None = None
     pinecone_api_key: str
     firecrawl_api_key: str
 
