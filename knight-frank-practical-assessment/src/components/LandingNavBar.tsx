@@ -17,7 +17,6 @@ export default function LandingNavbar() {
     pathname === "/landing" ? "#explore-regions" : "/landing#explore-regions";
   const findPropertyHref =
     pathname === "/landing" ? "#find-property" : "/landing#find-property";
-
   useEffect(() => {
     setName(sessionStorage.getItem("kf_user_name") || "User");
     setEmail(sessionStorage.getItem("kf_user_email") || "");
@@ -163,9 +162,9 @@ export default function LandingNavbar() {
         <Link href="/landing/saved-properties" className="landing-nav-link">
           Saved Properties
         </Link>
-        <Link href="/landing/sell-property" className="landing-nav-link">
+        {/* <Link href="/landing/sell-property" className="landing-nav-link">
           Sell a Property
-        </Link>
+        </Link> */}
       </nav>
     </header>
   );

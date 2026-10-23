@@ -112,7 +112,7 @@ export default function LandingPage() {
     <main className="investment-page">
       <LandingNavbar />
 
-      <section className="investment-hero">
+      <section id="explore-regions" className="investment-hero">
         <div className="investment-hero-background" aria-hidden="true">
           {HERO_BACKGROUNDS.map((background) => (
             <div
@@ -177,6 +177,7 @@ export default function LandingPage() {
       </section>
 
       <section
+        id="find-property"
         className="portal-section"
         ref={portalRef}
         aria-label="Property search portal"
