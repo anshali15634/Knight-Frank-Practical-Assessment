@@ -244,6 +244,7 @@ export default function AuthPanel() {
     sessionStorage.setItem("kf_user_email", email.trim());
     sessionStorage.setItem("kf_auth_token", payload.access_token);
 
+    setIsSubmitting(false);
     router.push("/landing");
   }
 
