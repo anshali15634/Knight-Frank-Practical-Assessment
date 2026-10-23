@@ -18,8 +18,7 @@ OFF_TOPIC_RESPONSE = (
 )
 
 CONTACT_RESPONSE = (
-    f"Please fill up the form in this link and the team will get in touch with you shortly: "
-    f"{settings.contact_url}"
+    "Please fill out this form and an advisor will get in touch shortly."
 )
 
 NO_CONTEXT_RESPONSE = (

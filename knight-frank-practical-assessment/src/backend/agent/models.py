@@ -68,6 +68,7 @@ class ChatResponse(BaseModel):
     session_id: str
     intent: Intent
     answer: str
+    contact_url: str | None = None
     sources: list[Source] = Field(default_factory=list)
     properties: list[PropertySummary] = Field(default_factory=list)
 

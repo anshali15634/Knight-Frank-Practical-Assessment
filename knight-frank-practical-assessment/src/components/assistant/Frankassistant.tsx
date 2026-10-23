@@ -30,6 +30,7 @@ type Message = {
   text: string;
   sources?: Source[];
   properties?: PropertyResult[];
+  contactUrl?: string;
 };
 type ProgressStage = "analyzing" | "research" | "generating";
 type ProgressStep = {
@@ -43,6 +44,8 @@ type AgentEventData = {
   message?: unknown;
   answer?: unknown;
   session_id?: unknown;
+  intent?: unknown;
+  contact_url?: unknown;
   sources?: unknown;
   properties?: unknown;
 };
@@ -106,6 +109,15 @@ function normalizedUrl(url: string) {
   }
 }
 
+function isWebUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
+
 function uniqueSources(sources: Source[]) {
   const seen = new Set<string>();
   return sources.filter((source) => {
@@ -152,6 +164,13 @@ function MessageBubble({
         ) : (
           <p>{message.text}</p>
         )}
+        {message.contactUrl && (
+          <p>
+            <a href={message.contactUrl} target="_blank" rel="noreferrer">
+              {message.contactUrl}
+            </a>
+          </p>
+        )}
         {message.sources && message.sources.length > 0 && (
           <ul className="frank-sources" aria-label="Sources">
             {message.sources.map((source, index) => (
@@ -186,7 +205,6 @@ function MessageBubble({
                       )}
                     </p>
                   )}
-                  <a href="/landing/find-property">Find Properties</a>
                 </article>
               );
             })}
@@ -343,9 +361,13 @@ export default function FrankAssistant() {
     text: string,
     sources?: Source[],
     properties?: PropertyResult[],
+    contactUrl?: string,
   ) {
     const id = nextId.current++;
-    setMessages((prev) => [...prev, { id, role, text, sources, properties }]);
+    setMessages((prev) => [
+      ...prev,
+      { id, role, text, sources, properties, contactUrl },
+    ]);
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
@@ -441,7 +463,11 @@ export default function FrankAssistant() {
           const properties = Array.isArray(data.properties)
             ? data.properties.filter(isPropertyResult)
             : [];
-          addMessage("assistant", data.answer, sources, properties);
+          const contactUrl =
+            data.intent === "contact" && isWebUrl(data.contact_url)
+              ? data.contact_url
+              : undefined;
+          addMessage("assistant", data.answer, sources, properties, contactUrl);
           receivedAnswer = true;
         }
       });

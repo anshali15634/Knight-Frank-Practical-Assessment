@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse
 
 from agent.graph import agent_graph
 from agent.models import ChatRequest, ChatResponse, Intent, Source
+from config import settings
 from properties.schemas import PropertySummary
 
 logger = logging.getLogger(__name__)
@@ -95,6 +96,11 @@ def _chat_events(request: ChatRequest, session_id: str) -> Iterator[str]:
                         "intent": result["intent"],
                         "answer": result["answer"],
                         "sources": result.get("sources", []),
+                        "contact_url": (
+                            settings.contact_url
+                            if result["intent"] == Intent.CONTACT.value
+                            else None
+                        ),
                     })
                     return
     except Exception:
@@ -143,6 +149,11 @@ def chat(request: ChatRequest) -> ChatResponse:
         session_id=session_id,
         intent=Intent(result["intent"]),
         answer=result["answer"],
+        contact_url=(
+            settings.contact_url
+            if result["intent"] == Intent.CONTACT.value
+            else None
+        ),
         sources=[Source(**s) for s in result.get("sources", [])],
         properties=[PropertySummary(**p) for p in result.get("properties", [])],
     )

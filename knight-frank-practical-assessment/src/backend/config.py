@@ -15,22 +15,26 @@ class Settings(BaseSettings):
 
     # --- API keys ---
     google_api_key: str
+    google_api_key1: str | None = None
+    google_api_key2: str | None = None
+    google_api_key3: str | None = None
+    google_api_key4: str | None = None
     pinecone_api_key: str
     firecrawl_api_key: str
 
     # --- Gemini ---
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.1-flash-lite"
 
     # --- Pinecone (names must match the indexes created by your ingestion script) ---
     residential_index_name: str = "residential-index"
     office_index_name: str = "office-market-index"
     pinecone_namespace: str = "__default__"
-    rag_top_k: int = 3
+    rag_top_k: int = 1
 
     # --- Firecrawl / press releases ---
     press_release_url: str = "https://www.knightfrank.ae/newsroom/press-release"
-    press_release_count: int = 3            # how many latest articles to scrape & summarise
-    press_article_max_chars: int = 6000     # per-article truncation before sending to Gemini
+    press_release_count: int = 1            # how many latest articles to scrape & summarise
+    press_article_max_chars: int = 2000     # per-article truncation before sending to Gemini
     press_cache_ttl_seconds: int = 1800     # cache scraped results to save Firecrawl credits
 
     # --- Automated responses ---
