@@ -12,9 +12,9 @@ from config import settings
 
 # ------------------------------------------------------- automated replies --
 OFF_TOPIC_RESPONSE = (
-    "I'm Knight Frank's Dubai market assistant, so I can only help with questions about our "
-    "Dubai Residential Market Review, our Dubai Office Market Review, and the latest Knight Frank "
-    "UAE press releases. Is there something along those lines I can help you with?"
+    "I'm Knight Frank's market assistant, so I can only help with global property searches, questions about our "
+    "Residential and Office Market Reviews for UAE, share the latest press releases from Knight Frank’s newsroom, "
+    "and provide contact to Knight Frank's team. Is there something along those lines I can help you with?"
 )
 
 CONTACT_RESPONSE = (
