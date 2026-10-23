@@ -239,6 +239,74 @@ function RangeInputs({
   );
 }
 
+function YieldRangeSlider({
+  id,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: RangeInputValue;
+  onChange: (next: RangeInputValue) => void;
+}) {
+  const min = value.min === "" ? 0 : Math.min(Number(value.min), 100);
+  const max = value.max === "" ? 100 : Math.min(Number(value.max), 100);
+  const minPosition = `${min}%`;
+  const maxPosition = `${max}%`;
+
+  return (
+    <div className="fp-range" role="group" aria-labelledby={`${id}-label`}>
+      <div className="fp-range-head">
+        <span id={`${id}-label`} className="fp-range-label">
+          {label}
+        </span>
+        <output className="fp-range-value">{rangeText(value, (v) => `${Number(v.toFixed(2))}%`)}</output>
+      </div>
+      <div className="fp-yield-slider">
+        <span className="fp-yield-bubble fp-yield-bubble-min" style={{ left: minPosition }} aria-hidden="true">
+          {Number(min.toFixed(2))}
+        </span>
+        <span className="fp-yield-bubble fp-yield-bubble-max" style={{ left: maxPosition }} aria-hidden="true">
+          {Number(max.toFixed(2))}
+        </span>
+        <div className="fp-yield-track" aria-hidden="true">
+          <span
+            className="fp-yield-track-active"
+            style={{ left: minPosition, right: `${100 - max}%` }}
+          />
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          step={0.01}
+          value={min}
+          aria-label={`${label} minimum`}
+          aria-valuetext={`${Number(min.toFixed(2))}%`}
+          onChange={(event) => {
+            const nextMin = Number(event.target.value);
+            onChange({ min: event.target.value, max: String(Math.max(nextMin, max)) });
+          }}
+        />
+        <input
+          type="range"
+          min={0}
+          max={100}
+          step={0.01}
+          value={max}
+          aria-label={`${label} maximum`}
+          aria-valuetext={`${Number(max.toFixed(2))}%`}
+          onChange={(event) => {
+            const nextMax = Number(event.target.value);
+            onChange({ min: String(Math.min(min, nextMax)), max: event.target.value });
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Page ---------- */
 
 export default function AssetsPropertiesSearchMain({
@@ -549,15 +617,25 @@ export default function AssetsPropertiesSearchMain({
               <div className="fp-advanced" id={`${uid}-advanced`} hidden={!advancedOpen}>
                 <div className="fp-advanced-grid">
                   {RANGE_KEYS.map((key) => (
-                    <RangeInputs
-                      key={key}
-                      id={`${uid}-${key}`}
-                      label={RANGE_LABELS[key]}
-                      value={ranges[key]}
-                      formatValue={formats[key]}
-                      step={key === "yield" ? 0.01 : 1}
-                      onChange={(next) => setRanges((r) => ({ ...r, [key]: next }))}
-                    />
+                    key === "yield" ? (
+                      <YieldRangeSlider
+                        key={key}
+                        id={`${uid}-${key}`}
+                        label={RANGE_LABELS[key]}
+                        value={ranges[key]}
+                        onChange={(next) => setRanges((r) => ({ ...r, [key]: next }))}
+                      />
+                    ) : (
+                      <RangeInputs
+                        key={key}
+                        id={`${uid}-${key}`}
+                        label={RANGE_LABELS[key]}
+                        value={ranges[key]}
+                        formatValue={formats[key]}
+                        step={1}
+                        onChange={(next) => setRanges((r) => ({ ...r, [key]: next }))}
+                      />
+                    )
                   ))}
                 </div>
               </div>

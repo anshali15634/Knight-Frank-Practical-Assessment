@@ -343,6 +343,111 @@
   min-width: 0;
 }
 
+.fp-yield-slider {
+  position: relative;
+  height: 4rem;
+  margin: 0 0.5rem;
+}
+
+.fp-yield-bubble {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  min-width: 2rem;
+  padding: 0.15rem 0.45rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: var(--fp-teal);
+  color: #fff;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.fp-yield-bubble-max {
+  top: 2.85rem;
+}
+
+.fp-yield-track {
+  position: absolute;
+  top: 2.15rem;
+  right: 0;
+  left: 0;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: #dedede;
+}
+
+.fp-yield-track-active {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: #8bd64f;
+}
+
+.fp-yield-slider input[type="range"] {
+  position: absolute;
+  top: 1.55rem;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.fp-yield-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 0.35rem;
+  background: transparent;
+}
+
+.fp-yield-slider input[type="range"]::-moz-range-track {
+  height: 0.35rem;
+  background: transparent;
+}
+
+.fp-yield-slider input[type="range"]::-webkit-slider-thumb {
+  width: 1rem;
+  height: 1rem;
+  margin-top: -0.325rem;
+  appearance: none;
+  border: 2px solid #b5ea98;
+  border-radius: 50%;
+  background: #8bd64f;
+  box-shadow: 0 0 0 1px #fff;
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.fp-yield-slider input[type="range"]::-moz-range-thumb {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid #b5ea98;
+  border-radius: 50%;
+  background: #8bd64f;
+  box-shadow: 0 0 0 1px #fff;
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.fp-yield-slider input[type="range"]:active::-webkit-slider-thumb,
+.fp-yield-slider input[type="range"]:active::-moz-range-thumb {
+  cursor: grabbing;
+}
+
+.fp-yield-slider input[type="range"]:focus-visible {
+  outline: none;
+}
+
+.fp-yield-slider input[type="range"]:focus-visible::-webkit-slider-thumb,
+.fp-yield-slider input[type="range"]:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(10, 77, 78, 0.3);
+}
+
 /* ---------- Actions and status ---------- */
 
 .fp-actions {
