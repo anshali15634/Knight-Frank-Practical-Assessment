@@ -3,17 +3,33 @@ import Image from "next/image";
 import Link from "next/link";
 import AuthPanel from "@/components/AuthPanel";
 
+const BACKGROUND_IMAGES = [
+  "/realestate1.png",
+  "/asia.jpg",
+  "/australia.jpg",
+  "/realestate3.jpeg",
+  "/europe.jpg",
+  "/uk.jpg",
+  "/usa.jpg",
+  "/africa.jpg",
+  "/restofworld.jpg",
+];
+
 export default function Home() {
   return (
     <main className="landing-page">
       {/* Fixed background carousel */}
       <div className="background-carousel" aria-hidden="true">
+        {BACKGROUND_IMAGES.map((image, index) => (
           <div
+            key={image}
             className="carousel-image"
             style={{
-              backgroundImage: `url('/realestate1.png')`,
+              backgroundImage: `url('${image}')`,
+              animationDelay: `${(index - BACKGROUND_IMAGES.length) * 5}s`,
             }}
           />
+        ))}
       </div>
 
       <div className="background-overlay" />

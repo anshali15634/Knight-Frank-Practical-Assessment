@@ -110,29 +110,29 @@ button:disabled {
   background-position: center;
   background-size: cover;
   opacity: 0;
-  animation: imageFade 30s infinite;
+  animation: imageFade 45s linear infinite;
   will-change: opacity;
 }
 
 @keyframes imageFade {
   0% {
+    opacity: 1;
+  }
+
+  6.667% {
+    opacity: 1;
+  }
+
+  11.111% {
     opacity: 0;
   }
 
-  4% {
-    opacity: 1;
-  }
-
-  20% {
-    opacity: 1;
-  }
-
-  24% {
+  95.556% {
     opacity: 0;
   }
 
   100% {
-    opacity: 0;
+    opacity: 1;
   }
 }
 
@@ -145,8 +145,8 @@ button:disabled {
 
 @media (prefers-reduced-motion: reduce) {
   .carousel-image {
-    animation: none;
-    will-change: auto;
+    animation: imageFade 45s linear infinite;
+    will-change: opacity;
   }
 
   .carousel-image:first-child {
