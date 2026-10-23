@@ -53,6 +53,14 @@ type AgentEventData = {
 const GREETING =
   "Hi, I'm Frank, your Knight Frank property investment assistant. How may I help you today?";
 
+const SUGGESTIONS = [
+  "Show me retail properties in Africa yielding above 6.5%",
+  "Did Dubai's villa sales go up this year?",
+  "I want to contact an advisor.",
+  "Show me the latest press release.",
+  "What core districts account for Dubai's future office supply?",
+];
+
 const API_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
 ).replace(/\/+$/, "");
@@ -374,9 +382,14 @@ export default function FrankAssistant() {
     setDraft(event.target.value);
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const text = draft.trim();
+  async function handleSubmit(eventOrText: FormEvent<HTMLFormElement> | string) {
+    let text: string;
+    if (typeof eventOrText === "string") {
+      text = eventOrText.trim();
+    } else {
+      eventOrText.preventDefault();
+      text = draft.trim();
+    }
     if (!text || loading) return;
 
     addMessage("user", text);
@@ -590,6 +603,20 @@ export default function FrankAssistant() {
               </li>
             )}
           </ol>
+          {messages.length === 0 && hasOpened && (
+            <div className="frank-suggestions" role="group" aria-label="Suggested questions">
+              {SUGGESTIONS.map((suggestion) => (
+                <button
+                  className="frank-suggestions__pill"
+                  key={suggestion}
+                  type="button"
+                  onClick={() => void handleSubmit(suggestion)}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <form className="frank-panel__form" onSubmit={handleSubmit}>

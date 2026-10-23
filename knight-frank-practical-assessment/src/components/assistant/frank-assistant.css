@@ -231,6 +231,43 @@
   list-style: none;
 }
 
+.frank-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-left: 46px;
+}
+
+.frank-suggestions__pill {
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #D0103A;
+  border-radius: 999px;
+  background: #fff;
+  color: #D0103A;
+  font: inherit;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.frank-suggestions__pill:hover:not(:disabled) {
+  background: #D0103A;
+  color: #fff;
+}
+
+.frank-suggestions__pill:focus-visible {
+  outline: 2px solid #D0103A;
+  outline-offset: 2px;
+}
+
+.frank-suggestions__pill:disabled {
+  cursor: not-allowed;
+}
+
 .frank-msg {
   display: flex;
   align-items: flex-end;
