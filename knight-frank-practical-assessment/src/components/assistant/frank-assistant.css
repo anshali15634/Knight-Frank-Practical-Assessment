@@ -1,90 +1,39 @@
-/* ---------- Sphere ---------- */
+/* ---------- Assistant icon ---------- */
 .frank-blob {
   --s: 72px;
-  position: relative;
-  display: inline-block;
+  box-sizing: border-box;
+  display: grid;
   width: var(--s);
   height: var(--s);
   flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: #d0103a;
+  color: #fff;
+  animation: frank-glow 1.8s ease-in-out infinite;
 }
 
-.frank-blob__bob {
-  position: absolute;
-  inset: 0;
-  animation: frank-bob 3.2s ease-in-out infinite;
+.frank-blob__sparkle {
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.3));
 }
 
-.frank-blob--static .frank-blob__bob {
-  animation: none;
-}
-
-.frank-blob__img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
-}
-
-/* Eyes sit on top of the image. Tweak --eye-y if sphere.png's centre differs. */
-.frank-blob__eyes {
-  --eye-y: 0px;
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: calc(var(--s) * 0.17);
-  transform: translateY(var(--eye-y));
-  transition: transform 1.8s cubic-bezier(0.45, 0, 0.25, 1);
-}
-
-.frank-blob__eyes[data-gaze="down"] {
-  transform: translateY(calc(var(--eye-y) + var(--s) * 0.12));
-}
-
-.frank-blob__eyes[data-gaze="up"] {
-  transform: translateY(calc(var(--eye-y) - var(--s) * 0.12));
-}
-
-.frank-blob__eyes[data-gaze="left"] {
-  transform: translate(calc(var(--s) * -0.11), var(--eye-y));
-}
-
-.frank-blob__eyes[data-gaze="right"] {
-  transform: translate(calc(var(--s) * 0.11), var(--eye-y));
-}
-
-.frank-blob__eye {
-  width: calc(var(--s) * 0.085);
-  height: calc(var(--s) * 0.17);
-  border-radius: 999px;
-  background: #fff;
-  transform-origin: center;
-}
-
-.frank-blob--blink .frank-blob__eye {
-  animation: frank-blink 0.32s ease-in-out;
-}
-
-@keyframes frank-blink {
+@keyframes frank-glow {
   0%,
   100% {
-    transform: scaleY(1);
+    box-shadow: 0 0 8px 2px rgba(208, 16, 58, 0.35);
+    transform: scale(1);
   }
   50% {
-    transform: scaleY(0.08);
+    box-shadow:
+      0 0 16px 5px rgba(208, 16, 58, 0.5),
+      0 0 30px 10px rgba(208, 16, 58, 0.2);
+    transform: scale(1.04);
   }
 }
 
-@keyframes frank-bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(calc(var(--s) * -0.05));
+@media (prefers-reduced-motion: reduce) {
+  .frank-blob {
+    animation: none;
   }
 }
 
@@ -98,12 +47,17 @@
   border: 0;
   background: none;
   cursor: pointer;
-  animation: frank-bounce-in 1.1s 0.6s both;
   transition: opacity 0.2s, transform 0.2s;
 }
 
 .frank-launcher:hover {
   transform: scale(1.06);
+}
+
+.frank-launcher.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .frank-launcher:focus-visible {
@@ -112,35 +66,11 @@
   border-radius: 50%;
 }
 
-@keyframes frank-bounce-in {
-  0% {
-    opacity: 0;
-    transform: translateY(180px) scale(0.5);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-34px) scale(1.05);
-  }
-  68% {
-    transform: translateY(10px) scale(0.98);
-  }
-  82% {
-    transform: translateY(-12px);
-  }
-  92% {
-    transform: translateY(3px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
 /* ---------- Pop-out chat ---------- */
 .frank-panel {
   position: fixed;
   right: 24px;
-  bottom: 116px;
+  bottom: 24px;
   z-index: 1001;
   display: flex;
   flex-direction: column;
@@ -236,7 +166,6 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 14px;
-  padding-left: 46px;
 }
 
 .frank-suggestions__pill {
@@ -306,14 +235,10 @@
   }
 }
 
-.frank-avatar {
-  filter: drop-shadow(0 3px 6px rgba(208, 16, 58, 0.35));
-}
-
 .frank-msg__bubble {
   box-sizing: border-box;
   min-width: 0;
-  max-width: calc(100% - 46px);
+  max-width: 100%;
   margin: 0;
   padding: 11px 15px;
   overflow-wrap: anywhere;

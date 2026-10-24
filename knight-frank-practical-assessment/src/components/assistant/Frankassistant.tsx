@@ -6,12 +6,11 @@ import {
   useState,
   type ChangeEvent,
   type FormEvent,
-  type ReactNode,
 } from "react";
 import { Brain, Send, Settings, X, Zap } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import FrankBlob, { type Gaze } from "@/components/assistant/Frankblob";
+import FrankBlob from "@/components/assistant/Frankblob";
 import "./frank-assistant.css";
 
 type Source = { source: string; url?: string | null; snippet?: string | null };
@@ -139,16 +138,13 @@ function uniqueSources(sources: Source[]) {
 
 function MessageBubble({
   message,
-  avatar,
 }: {
   message: Message;
-  avatar: ReactNode;
 }) {
   const seenLinks = new Set<string>();
 
   return (
     <li className={`frank-msg frank-msg--${message.role} frank-msg--enter`}>
-      {message.role === "assistant" && avatar}
       <div className="frank-msg__bubble">
         {message.role === "assistant" ? (
           <ReactMarkdown
@@ -261,18 +257,9 @@ async function readAgentEvents(
   }
 }
 
-/** What Frank does while nobody is interacting with him */
-const IDLE_SEQUENCE: Gaze[] = ["up", "right", "down", "left"];
-const IDLE_STEP_MS = 2000;
-/** How long Frank takes to settle on "straight" before blinking on hover */
-const HOVER_BLINK_DELAY_MS = 1000;
-
 export default function FrankAssistant() {
   const [open, setOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [blink, setBlink] = useState(false);
-  const [idleIndex, setIdleIndex] = useState(0);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -281,7 +268,6 @@ export default function FrankAssistant() {
 
   const nextId = useRef(1);
   const sessionId = useRef<string | null>(null);
-  const hoverTimer = useRef<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -290,22 +276,6 @@ export default function FrankAssistant() {
     const interval = window.setInterval(() => setProgressTime(Date.now()), 1000);
     return () => window.clearInterval(interval);
   }, [loading]);
-
-  useEffect(() => {
-    return () => {
-      if (hoverTimer.current !== null) window.clearTimeout(hoverTimer.current);
-    };
-  }, []);
-
-  // Idle: look up, to the side, down... until something happens
-  useEffect(() => {
-    if (open || hovered) return;
-    const id = window.setInterval(
-      () => setIdleIndex((i) => (i + 1) % IDLE_SEQUENCE.length),
-      IDLE_STEP_MS
-    );
-    return () => window.clearInterval(id);
-  }, [open, hovered]);
 
   // Focus the input once the pop-out has appeared
   useEffect(() => {
@@ -332,35 +302,8 @@ export default function FrankAssistant() {
     });
   }, [messages, loading, progressSteps]);
 
-  // Open -> looks up. Typing -> looks down curiously. Otherwise hover/idle.
-  const gaze: Gaze = open
-    ? draft.trim()
-      ? "down"
-      : "up"
-    : hovered
-      ? "center"
-      : IDLE_SEQUENCE[idleIndex];
-
-  function handleHoverStart() {
-    setHovered(true);
-    if (hoverTimer.current !== null) window.clearTimeout(hoverTimer.current);
-    hoverTimer.current = window.setTimeout(
-      () => setBlink(true),
-      HOVER_BLINK_DELAY_MS
-    );
-  }
-
-  function handleHoverEnd() {
-    setHovered(false);
-    if (hoverTimer.current !== null) {
-      window.clearTimeout(hoverTimer.current);
-      hoverTimer.current = null;
-    }
-  }
-
   function handleToggle() {
     if (!open) setHasOpened(true);
-    handleHoverEnd();
     setOpen((o) => !o);
   }
 
@@ -504,29 +447,22 @@ export default function FrankAssistant() {
     return <Icon size={20} strokeWidth={2} aria-hidden="true" />;
   }
 
-  const avatar = <FrankBlob size={36} isStatic className="frank-avatar" />;
-
   return (
     <>
       <button
         type="button"
-        className="frank-launcher"
+        className={`frank-launcher${open ? " is-hidden" : ""}`}
         aria-expanded={open}
+        aria-hidden={open}
+        inert={open}
         aria-label={
           open
             ? "Close chat with Frank"
             : "Chat with Frank, your real estate assistant"
         }
-        onMouseEnter={handleHoverStart}
-        onMouseLeave={handleHoverEnd}
         onClick={handleToggle}
       >
-        <FrankBlob
-          size={76}
-          gaze={gaze}
-          blink={blink}
-          onBlinkEnd={() => setBlink(false)}
-        />
+        <FrankBlob size={60} />
       </button>
 
       <aside
@@ -555,16 +491,14 @@ export default function FrankAssistant() {
           <ol className="frank-messages" aria-live="polite">
             {hasOpened && (
               <li className="frank-msg frank-msg--assistant frank-msg--greet">
-                {avatar}
                 <p className="frank-msg__bubble">{GREETING}</p>
               </li>
             )}
             {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} avatar={avatar} />
+              <MessageBubble key={m.id} message={m} />
             ))}
             {loading && (
               <li className="frank-msg frank-msg--assistant frank-msg--enter">
-                {avatar}
                 <div className="frank-msg__bubble frank-progress">
                   <ol className="frank-progress__steps" aria-label="Frank's progress">
                     {progressSteps.map((step, index) => {
