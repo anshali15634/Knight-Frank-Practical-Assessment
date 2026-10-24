@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkle } from "lucide-react";
+import {Bot} from "lucide-react";
 import type { CSSProperties } from "react";
 
 type Props = {
@@ -16,10 +16,8 @@ export default function FrankBlob({ size = 72, className = "" }: Props) {
       style={{ "--s": `${size}px` } as CSSProperties}
       aria-hidden="true"
     >
-      <Sparkle
-        className="frank-blob__sparkle"
+      <Bot
         size={size * 0.48}
-        fill="currentColor"
         strokeWidth={1.8}
       />
     </span>

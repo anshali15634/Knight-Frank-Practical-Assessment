@@ -468,14 +468,13 @@ export default function FrankAssistant() {
       <aside
         className={`frank-panel${open ? " is-open" : ""}`}
         role="dialog"
-        aria-label="Frank, Knight Frank AI assistant"
+        aria-label="Knight Frank AI assistant"
         aria-hidden={!open}
         inert={!open}
       >
         <header className="frank-panel__header">
           <div>
-            <p className="frank-panel__name">Frank</p>
-            <p className="frank-panel__role">Knight Frank AI assistant</p>
+            <p className="frank-panel__title">Knight Frank AI</p>
           </div>
           <button
             type="button"
