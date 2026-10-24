@@ -36,7 +36,7 @@ export default function SavedPropertiesPage() {
         <div className="investment-intro">
           <p className="investment-eyebrow">KNIGHT FRANK · YOUR PORTFOLIO</p>
 
-          <div className="heading-transition">
+          <div className="heading-transition saved-properties-heading">
             <h1 className="investment-heading is-visible">
               Your saved properties,{" "}
               <span className="desktop-break" style={{ color: "#252525" }}>
