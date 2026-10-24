@@ -169,6 +169,18 @@ def health_check():
     return {"status": "ok"}
 
 
+@app.get("/api/v1/property-documents", tags=["Properties"])
+def property_document_urls():
+    nda_pdf_url = os.getenv("NDA_PDF_URL")
+    im_pdf_url = os.getenv("IM_PDF_URL")
+    if not nda_pdf_url or not im_pdf_url:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Property documents are not configured.",
+        )
+    return {"nda_pdf_url": nda_pdf_url, "im_pdf_url": im_pdf_url}
+
+
 # -----------------------------------------
 # Sign up
 # -----------------------------------------

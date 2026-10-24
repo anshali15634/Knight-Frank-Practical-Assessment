@@ -51,8 +51,250 @@
   stroke-linejoin: round;
 }
 
+.fp-property-documents {
+  display: grid;
+  flex: none;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--fp-line);
+  background: #fff;
+}
+
+.fp-document-button {
+  display: inline-flex;
+  min-height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--fp-teal);
+  border-radius: 0.2rem;
+  background: var(--fp-teal);
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.fp-document-button:hover:not(:disabled) {
+  border-color: var(--fp-teal-dark);
+  background: var(--fp-teal-dark);
+}
+
+.fp-document-button:focus-visible {
+  outline: 2px solid var(--fp-teal);
+  outline-offset: 3px;
+}
+
+.fp-document-button:disabled {
+  border-color: #aaa79f;
+  background: #e6e4df;
+  color: #66635d;
+  cursor: not-allowed;
+}
+
+.fp-document-button-secondary {
+  background: #fff;
+  color: var(--fp-teal);
+}
+
+.fp-document-button-secondary:hover:not(:disabled) {
+  background: var(--fp-stone-soft);
+  color: var(--fp-teal-dark);
+}
+
+.fp-document-button-complete {
+  border-color: #d7e5dc;
+  background: #edf4ef;
+  color: #28583a;
+  cursor: default;
+}
+
+.fp-document-button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.fp-document-disabled {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.fp-document-disabled .fp-document-button {
+  width: 100%;
+}
+
+.fp-document-hint {
+  color: var(--fp-muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.fp-nda-overlay {
+  position: fixed;
+  z-index: 1010;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(12, 24, 23, 0.62);
+  animation: fp-fade-in 0.18s ease-out both;
+}
+
+.fp-nda-dialog {
+  display: flex;
+  width: min(54rem, 100%);
+  max-height: min(46rem, calc(100dvh - 2rem));
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--fp-line);
+  border-radius: 0.25rem;
+  background: #fff;
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.24);
+}
+
+.fp-nda-header,
+.fp-nda-footer {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.fp-nda-header {
+  border-bottom: 1px solid var(--fp-line);
+}
+
+.fp-nda-header h2 {
+  margin: 0.2rem 0 0;
+  color: var(--fp-ink);
+  font-size: 1.2rem;
+}
+
+.fp-nda-step {
+  margin: 0;
+  color: var(--fp-teal);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fp-nda-close {
+  flex: none;
+}
+
+.fp-nda-content {
+  min-height: 12rem;
+  padding: 1rem 1.25rem;
+  overflow: auto;
+}
+
+.fp-nda-viewer {
+  display: block;
+  width: 100%;
+  height: min(60vh, 34rem);
+  border: 1px solid var(--fp-line);
+  background: #f7f6f3;
+}
+
+.fp-nda-load-error {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  color: #8e2929;
+}
+
+.fp-nda-load-error p {
+  margin: 0;
+}
+
+.fp-nda-footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--fp-line);
+}
+
+.fp-signature-instructions {
+  margin: 0 0 0.75rem;
+  color: var(--fp-muted);
+}
+
+.fp-signature-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--fp-line);
+  background:
+    linear-gradient(to bottom, transparent calc(100% - 2.5rem), #c9c4b8 calc(100% - 2.5rem), #c9c4b8 calc(100% - 2.4rem), transparent calc(100% - 2.4rem)),
+    #fbfaf8;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.fp-signature-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fp-property-card-shell {
     transition: none;
+  }
+
+  .fp-nda-overlay {
+    animation-duration: 0.01ms;
+  }
+}
+
+@media (max-width: 36rem) {
+  .fp-property-documents {
+    padding: 0.85rem 1rem;
+  }
+
+  .fp-nda-overlay {
+    padding: 0;
+  }
+
+  .fp-nda-dialog {
+    width: 100%;
+    height: 100%;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .fp-nda-header,
+  .fp-nda-footer {
+    padding: 0.85rem 1rem;
+  }
+
+  .fp-nda-header h2 {
+    font-size: 1rem;
+  }
+
+  .fp-nda-content {
+    padding: 0.85rem 1rem;
+  }
+
+  .fp-nda-viewer {
+    height: min(68vh, 42rem);
+  }
+
+  .fp-signature-canvas {
+    align-self: start;
+    margin-top: 1rem;
   }
 }

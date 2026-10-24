@@ -38,7 +38,7 @@ Create a `.env` file in `src/backend` with `SUPABASE_URL` and `SUPABASE_SECRET_K
 uvicorn main:app --reload --port 8000
 ```
 
-Set `GOOGLE_API_KEY` in that file, and optionally `GOOGLE_API_KEY1` through `GOOGLE_API_KEY6` as backup Gemini keys. On a quota response, the backend retries with the next configured key and cycles back to `GOOGLE_API_KEY` after the last key.
+Set `GOOGLE_API_KEY` in that file, and optionally `GOOGLE_API_KEY1` through `GOOGLE_API_KEY9` as backup Gemini keys. On a quota response, the backend retries with the next configured key and cycles back to `GOOGLE_API_KEY` after the last key.
 
 The API allows the local frontend origins `http://localhost:3000` and `http://127.0.0.1:3000`. For deployment, set `FRONTEND_ORIGINS` in the backend environment to a comma-separated list of permitted frontend origins.
 

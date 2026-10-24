@@ -9,6 +9,8 @@ import {
   useRef,
   useState,
 } from "react";
+import NdaModal from "./NdaModal";
+import PropertyDocuments from "./PropertyDocuments";
 import "./property-collection.css";
 import "@/app/landing/find-property/find-property.css";
 
@@ -102,6 +104,9 @@ export default function PropertyCollection({
   const [removingIds, setRemovingIds] = useState<Set<string>>(() => new Set());
   const [isLoading, setIsLoading] = useState(savedOnly);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isNdaSigned, setIsNdaSigned] = useState(false);
+  const [isNdaModalOpen, setIsNdaModalOpen] = useState(false);
+  const [imPdfUrl, setImPdfUrl] = useState("");
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails | null>(
     null,
   );
@@ -111,10 +116,14 @@ export default function PropertyCollection({
   const closeDetailsRef = useRef<HTMLButtonElement>(null);
   const detailsPanelRef = useRef<HTMLElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const closeNdaModal = useCallback(() => setIsNdaModalOpen(false), []);
   const closePropertyDetails = useCallback(() => {
     detailsController.current?.abort();
     detailsController.current = null;
     setSelectedProperty(null);
+    setIsNdaSigned(false);
+    setIsNdaModalOpen(false);
+    setImPdfUrl("");
     returnFocusRef.current?.focus();
   }, []);
 
@@ -226,6 +235,14 @@ export default function PropertyCollection({
     document.body.style.overflow = "hidden";
     closeDetailsRef.current?.focus();
 
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [selectedProperty]);
+
+  useEffect(() => {
+    if (!selectedProperty || isNdaModalOpen) return;
+
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         closePropertyDetails();
@@ -251,10 +268,9 @@ export default function PropertyCollection({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedProperty, closePropertyDetails]);
+  }, [selectedProperty, isNdaModalOpen, closePropertyDetails]);
 
   function openPropertyDetails(property: Property, trigger: HTMLElement) {
     detailsController.current?.abort();
@@ -263,6 +279,9 @@ export default function PropertyCollection({
     setPropertyDetails(null);
     setDetailsLoading(true);
     setDetailsError("");
+    setIsNdaSigned(false);
+    setIsNdaModalOpen(false);
+    setImPdfUrl("");
     setSelectedProperty(property);
   }
 
@@ -524,8 +543,23 @@ export default function PropertyCollection({
                 <div className="fp-detail-wide"><dt>Comments / other details</dt><dd>{propertyDetails?.comments_other_details || "Not specified"}</dd></div>
               </dl>
             </div>
+            <PropertyDocuments
+              isNdaSigned={isNdaSigned}
+              imPdfUrl={imPdfUrl}
+              onSignNda={() => setIsNdaModalOpen(true)}
+            />
           </aside>
         </div>
+      )}
+      {isNdaModalOpen && selectedProperty && (
+        <NdaModal
+          onClose={closeNdaModal}
+          onComplete={(url) => {
+            setImPdfUrl(url);
+            setIsNdaSigned(true);
+            closeNdaModal();
+          }}
+        />
       )}
     </div>
   );
